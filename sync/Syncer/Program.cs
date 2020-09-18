@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Syncer.Contracts;
 using Syncer.Services;
+using Syncer.Utils;
 
 namespace Syncer
 {
@@ -11,8 +12,6 @@ namespace Syncer
     {
         public static async Task Main(string[] args)
         {
-            ConfigureSeriog();
-
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
@@ -25,19 +24,15 @@ namespace Syncer
 
             logger.LogInformation("Hello World from docker!");
         }
-
-
-        private static void ConfigureSeriog()
-        {
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.RollingFile("/logs/syncer-{Date}.log")
-                .CreateLogger();
-        }
-
-
+     
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
+            var applicationConfiguration = ConfigurationFactory.CreateConfiguration();
+
+            Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(applicationConfiguration).CreateLogger();
+
+            serviceCollection.AddSingleton(applicationConfiguration);
+
             serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
 
             serviceCollection.AddTransient<IBinLogSyncService, BinLogSyncService>();
