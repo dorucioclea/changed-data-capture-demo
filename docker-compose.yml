@@ -6,3 +6,5 @@ services:
     build:
       context: ./sync/Syncer
       dockerfile: Dockerfile
+    volumes:
+      - ./logs:/logs
