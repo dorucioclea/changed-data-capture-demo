@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using CanalSharp.Protocol;
 
 namespace Syncer.Contracts
 {
-    public interface ICanalConnector
+    public interface ICanalConnector : IDisposable
     {
-        void Connect();
+        public void Connect();
 
-
+        public Message Get(int batchSize = 1024);
     }
 }
