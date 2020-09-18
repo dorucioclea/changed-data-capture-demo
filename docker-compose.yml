@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  syncer:
+    image: ${DOCKER_REGISTRY-}syncer
+    build:
+      context: ./sync/Syncer
+      dockerfile: Dockerfile
