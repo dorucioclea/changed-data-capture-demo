@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -31,7 +30,8 @@ namespace Syncer
         private static void ConfigureSeriog()
         {
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.File("/logs/syncer.log")
+                .Enrich.FromLogContext()
+                .WriteTo.RollingFile("/logs/syncer-{Date}.log")
                 .CreateLogger();
         }
 
