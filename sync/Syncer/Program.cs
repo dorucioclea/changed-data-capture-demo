@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Syncer.Contracts;
+using Syncer.Services;
 
 namespace Syncer
 {
@@ -28,7 +29,7 @@ namespace Syncer
         {
             serviceCollection.AddLogging(configuration => configuration.AddConsole());
 
-            serviceCollection.AddTransient<IBinLogSyncService, IBinLogSyncService>();
+            serviceCollection.AddTransient<IBinLogSyncService, BinLogSyncService>();
         }
     }
 }
