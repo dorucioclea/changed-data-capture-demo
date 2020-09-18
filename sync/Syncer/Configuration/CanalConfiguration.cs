@@ -17,7 +17,7 @@
 
         public int ServerPort { get; set; }
 
-        public string DatabaseName { get; set; }
+        public string Destination { get; set; }
 
         public CanalCredentials Credentials { get; set; }
     }

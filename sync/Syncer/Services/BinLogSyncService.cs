@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Com.Alibaba.Otter.Canal.Protocol;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging;
 using Syncer.Contracts;
 using Syncer.Entities;

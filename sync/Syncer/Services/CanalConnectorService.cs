@@ -54,7 +54,7 @@ namespace Syncer.Services
         private static CanalSharp.Client.ICanalConnector ProvideCanalClient(CanalConfiguration configuration)
         {
             return CanalConnectors.NewSingleConnector(configuration.ServerAddress, configuration.ServerPort,
-                configuration.DatabaseName, configuration.Credentials.UserName,
+                configuration.Destination, configuration.Credentials.UserName,
                 configuration.Credentials.Password);
         }
 
