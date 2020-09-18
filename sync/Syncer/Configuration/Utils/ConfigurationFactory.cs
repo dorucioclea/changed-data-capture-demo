@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting.Internal;
 
-namespace Syncer.Utils
+namespace Syncer.Configuration.Utils
 {
     public static class ConfigurationFactory
     {
