@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using Syncer.Contracts;
 using Syncer.Services;
 
@@ -11,23 +12,33 @@ namespace Syncer
     {
         public static async Task Main(string[] args)
         {
+            ConfigureSeriog();
+
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
-            await using (var serviceProvider = serviceCollection.BuildServiceProvider())
-            {
-                var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
+            await using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
 
-                await binLogSyncService.Sync();
-            }
+            await binLogSyncService.Sync();
 
-            Console.WriteLine("Hello World from docker!");
+            var logger = serviceProvider.GetService<ILogger<Program>>();
+
+            logger.LogInformation("Hello World from docker!");
+        }
+
+
+        private static void ConfigureSeriog()
+        {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File("/logs/syncer.log")
+                .CreateLogger();
         }
 
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddLogging(configuration => configuration.AddConsole());
+            serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
 
             serviceCollection.AddTransient<IBinLogSyncService, BinLogSyncService>();
         }
