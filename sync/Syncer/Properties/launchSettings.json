@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Syncer": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
