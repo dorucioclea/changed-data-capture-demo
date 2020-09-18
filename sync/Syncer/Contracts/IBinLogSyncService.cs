@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Syncer.Entities;
 
 namespace Syncer.Contracts
 {
     public interface IBinLogSyncService
     {
-        ValueTask Sync();
+        void Initialize();
+        ValueTask<SyncStatus> Sync();
     }
 }
