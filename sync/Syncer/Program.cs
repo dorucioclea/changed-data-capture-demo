@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using Syncer.Contracts;
-using Syncer.Services;
-using Syncer.Utils;
 
 namespace Syncer
 {
@@ -12,30 +10,35 @@ namespace Syncer
     {
         public static async Task Main(string[] args)
         {
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-
-            await using var serviceProvider = serviceCollection.BuildServiceProvider();
-            var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
-
-            await binLogSyncService.Sync();
-
+            await using var serviceProvider = AppConfiguration.InitializeServiceProvider();
             var logger = serviceProvider.GetService<ILogger<Program>>();
 
-            logger.LogInformation("Hello World from docker!");
+            try
+            {
+                await SyncByBinLog(serviceProvider);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError($"TopMost error: {exception.Message}");
+            }
         }
-     
-        private static void ConfigureServices(IServiceCollection serviceCollection)
+
+
+        private static async Task SyncByBinLog(IServiceProvider serviceProvider)
         {
-            var applicationConfiguration = ConfigurationFactory.CreateConfiguration();
+            var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
 
-            Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(applicationConfiguration).CreateLogger();
+            binLogSyncService.Initialize();
 
-            serviceCollection.AddSingleton(applicationConfiguration);
+            while (true)
+            {
+                var syncStatus = await binLogSyncService.Sync();
 
-            serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
-
-            serviceCollection.AddTransient<IBinLogSyncService, BinLogSyncService>();
+                if (!syncStatus.HasMessages)
+                {
+                    await Task.Delay(500);
+                }
+            }
         }
     }
 }
