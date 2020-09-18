@@ -1,10 +1,39 @@
 version: '3.4'
+  services:
 
-services:
-  syncer:
-    image: ${DOCKER_REGISTRY-}syncer
-    build:
-      context: ./sync/Syncer
-      dockerfile: Dockerfile
-    volumes:
-      - ./logs:/logs
+    mysql:
+      image: mysql:5.7
+      container_name: mysql-5.7
+      ports:
+        - "4406:3306"
+      environment:
+        - MYSQL_ROOT_PASSWORD=000000
+      networks:
+        - canalsharp
+      volumes:
+        - ./provisioning/mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+        - ./provisioning/var/lib/mysql:/var/lib/mysql
+        - ./provisioning/mysql/init/:/docker-entrypoint-initdb.d/
+
+    canal-server:
+      image: canal/canal-server:v1.1.0
+      container_name: canal-server
+      ports:
+        - "11111:11111"
+      networks:
+        - canalsharp
+      volumes:
+        - ./provisioning/canal/:/home/admin/canal-server/conf/example/
+        - ./canal-server-logs/:/home/admin/canal-server/logs/
+      depends_on:
+        - mysql
+
+    syncer:
+      image: ${DOCKER_REGISTRY-}syncer
+      build:
+        context: ./sync/Syncer
+        dockerfile: Dockerfile
+      volumes:
+        - ./logs:/logs
+      depends_on:
+        - canal-server
