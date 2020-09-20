@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ArgumentValidator;
 using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
@@ -26,12 +26,17 @@ namespace Syncer.Services.Visitors
         public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var tableMapEvent = binlogEvent.Event as TableMapEvent;
-            Debug.Assert(tableMapEvent != null, nameof(tableMapEvent) + " != null");
+            Throw.IfNull(tableMapEvent, nameof(tableMapEvent));
 
+            HandleTableMapEvent(tableMapEvent, executionContext);
+            return Task.CompletedTask;
+        }
 
+        private void HandleTableMapEvent(TableMapEvent tableMapEvent, ExecutionContext executionContext)
+        {
             if (executionContext.OrdinalConfiguration.Tables.Any(table => table.Id == tableMapEvent.TableId))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             // add new table context
@@ -62,8 +67,6 @@ namespace Syncer.Services.Visitors
             {
                 _logger.LogInformation($"Processing {tableMapEvent.DatabaseName}.{tableMapEvent.TableName}");
             }
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
+using ArgumentValidator;
 
 namespace Syncer.Services.Visitors
 {
@@ -25,7 +26,7 @@ namespace Syncer.Services.Visitors
         {
             var writeRows = binlogEvent.Event as WriteRowsEvent;
 
-            Debug.Assert(writeRows != null, nameof(writeRows) + " != null");
+            Throw.IfNull(writeRows, nameof(writeRows));
 
             HandleWriteRowsEvent(writeRows);
 

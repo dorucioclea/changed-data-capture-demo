@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using ArgumentValidator;
 using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
@@ -25,7 +26,7 @@ namespace Syncer.Services.Visitors
         public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var deleteRows = binlogEvent.Event as DeleteRowsEvent;
-            Debug.Assert(deleteRows != null, nameof(deleteRows) + " != null");
+            Throw.IfNull(deleteRows, nameof(deleteRows));
 
             HandleDeleteRowsEvent(deleteRows);
 

@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using ArgumentValidator;
 using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
@@ -24,7 +24,7 @@ namespace Syncer.Services.Visitors
         public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var updatedRows = binlogEvent.Event as UpdateRowsEvent;
-            Debug.Assert(updatedRows != null, nameof(updatedRows) + " != null");
+            Throw.IfNull(updatedRows, nameof(updatedRows));
 
             HandleUpdateRowsEvent(updatedRows);
 
