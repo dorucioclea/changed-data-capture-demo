@@ -1,0 +1,9 @@
+[mysqld]
+binlog_format=row
+binlog_row_image=full
+server_id=1
+log-bin=mariadb-bin
+log_error
+log-slave-updates
+binlog_row_metadata = full
+binlog_annotate_row_events = on
