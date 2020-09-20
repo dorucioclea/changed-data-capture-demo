@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
+using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
@@ -25,10 +26,12 @@ namespace Syncer.Services.Visitors
         {
             if (binlogEvent.Options.Filename != null)
             {
-                await File.WriteAllTextAsync(executionContext.BinLogLedgerPath,
-                    $"{binlogEvent.Options.Filename} - {binlogEvent.Options.Position}");
+                var binLog = new BinLog(binlogEvent.Options.Filename,  binlogEvent.Options.Position);
 
-                _logger.LogDebug($"Logged binlog position { binlogEvent.Options.Filename } - { binlogEvent.Options.Position }");
+                await File.WriteAllTextAsync(executionContext.BinLogLedgerPath,
+                    $"{binLog}");
+
+                _logger.LogDebug($"Logged binlog position { binLog }");
 
                 executionContext.BinLogFilename = binlogEvent.Options.Filename;
                 executionContext.BinLogPosition = binlogEvent.Options.Position;
