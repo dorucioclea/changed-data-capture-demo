@@ -69,48 +69,47 @@ namespace Syncer.Services
             {
                 var state = _binlogClient.State;
 
-                // if (binlogEvent is TableMapEvent tableMap)
-                // {
-                //     await HandleTableMapEvent(tableMap);
-                // }
-                // else if (binlogEvent is WriteRowsEvent writeRows)
-                // {
-                //     await HandleWriteRowsEvent(writeRows);
-                // }
-                // else if (binlogEvent is UpdateRowsEvent updateRows)
-                // {
-                //     await HandleUpdateRowsEvent(updateRows);
-                // }
-                // else if (binlogEvent is DeleteRowsEvent deleteRows)
-                // {
-                //     await HandleDeleteRowsEvent(deleteRows);
-                // }
-                // else await PrintEventAsync(binlogEvent);
-
-                PrintEventAsync(binlogEvent);
+                if (binlogEvent is TableMapEvent tableMap)
+                {
+                    HandleTableMapEvent(tableMap);
+                }
+                else if (binlogEvent is WriteRowsEvent writeRows)
+                {
+                    HandleWriteRowsEvent(writeRows);
+                }
+                else if (binlogEvent is UpdateRowsEvent updateRows)
+                {
+                    HandleUpdateRowsEvent(updateRows);
+                }
+                else if (binlogEvent is DeleteRowsEvent deleteRows)
+                {
+                    HandleDeleteRowsEvent(deleteRows);
+                }
+                else PrintEventAsync(binlogEvent);
             });
 
             return new SyncStatus();
         }
 
-        private void PrintEventAsync(IBinlogEvent binlogEvent)
-        {
-            try
+            private void PrintEventAsync(IBinlogEvent binlogEvent)
             {
-                var json = JsonConvert.SerializeObject(binlogEvent, Formatting.Indented,
-                    new JsonSerializerSettings()
-                    {
-                        Converters = new List<JsonConverter> { new StringEnumConverter() }
-                    });
+                try
+                {
+                    var json = JsonConvert.SerializeObject(binlogEvent, Formatting.Indented,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                            Converters = new List<JsonConverter> { new StringEnumConverter() }
+                        });
 
 
-                _logger.LogInformation(json);
+                    _logger.LogInformation(json);
+                }
+                catch (Exception exception)
+                {
+
+                }
             }
-            catch (Exception exception)
-            {
-
-            }
-        }
 
         private void HandleTableMapEvent(TableMapEvent tableMap)
         {
