@@ -34,7 +34,6 @@ namespace Syncer
             serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
 
             serviceCollection.AddTransient<IBinLogSyncService, BinLogSyncService>();
-            serviceCollection.AddTransient<ICanalConnector, CanalConnectorService>();
         }
     }
 }
