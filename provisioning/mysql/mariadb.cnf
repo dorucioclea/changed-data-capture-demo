@@ -1,4 +1,5 @@
 [mysqld]
+default-authentication-plugin=mysql_native_password
 binlog_format=row
 binlog_row_image=full
 server_id=1
