@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ namespace Syncer.Services
         private BinlogClient _binlogClient;
         private readonly ILogger<BinLogSyncService> _logger;
         private readonly IOptions<DatabaseConfiguration> _databaseConfiguration;
+        private readonly IOptions<BinLogConfiguration> _binLogConfiguration;
         private readonly IEnumerable<IBinLogEventVisitor> _binLogEventVisitors;
         private readonly ExecutionContext _executionContext;
 
@@ -26,6 +28,7 @@ namespace Syncer.Services
         {
             _logger = logger;
             _databaseConfiguration = databaseConfiguration;
+            _binLogConfiguration = binLogConfiguration;
             _binLogEventVisitors = binLogEventVisitors;
 
             _executionContext = new ExecutionContext
@@ -38,7 +41,7 @@ namespace Syncer.Services
         {
             _logger.LogInformation("Initializing Mariadb CDC");
 
-            _binlogClient = new BinlogClient(options =>
+            _binlogClient = new BinlogClient(async options =>
             {
                 options.Port = _databaseConfiguration.Value.ServerPort;
                 options.Hostname = _databaseConfiguration.Value.ServerAddress;
@@ -50,7 +53,40 @@ namespace Syncer.Services
                 options.Blocking = true;
 
                 // Start replication from the master first available(not purged) binlog filename and position.
-                options.Binlog = BinlogOptions.FromStart();
+
+                if (_binLogConfiguration.Value.AutoSave)
+                {
+                    _logger.LogInformation($"Binlog has AutoSave ON. Attempting to load last known binlog position from {_binLogConfiguration.Value.FilePath}");
+
+                    string binlogSavedValue = null;
+
+                    try
+                    {
+                        binlogSavedValue = await File.ReadAllTextAsync(_binLogConfiguration.Value.FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        _logger.LogError("Ledger file not found. Starting from scratch.");
+                    }
+
+                    if (binlogSavedValue == null)
+                    {
+                        _logger.LogInformation("Could not find binlog position. Starting from scratch");
+                        options.Binlog = BinlogOptions.FromStart();
+                    }
+                    else
+                    {
+                        var binLog = new BinLog(binlogSavedValue);
+
+                        _logger.LogInformation($"Starting from {binLog.FileName} at position {binLog.Position}");
+                        options.Binlog = BinlogOptions.FromPosition(binLog.FileName, binLog.Position);
+                    }
+                }
+                else
+                {
+                    options.Binlog = BinlogOptions.FromStart();
+                }
+
                 options.ServerId = _databaseConfiguration.Value.ServerId;
             });
 
