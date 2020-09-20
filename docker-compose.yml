@@ -8,32 +8,11 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=000000
     networks:
-      - canal
+      - cdc
     volumes:
       - ./provisioning/mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
       - ./provisioning/var/lib/mysql:/var/lib/mysql
       - ./provisioning/mysql/init/:/docker-entrypoint-initdb.d/
-
-  canal-server:
-    image: canal/canal-server:v1.1.4
-    container_name: canal-server
-    ports:
-      - "11111:11111"
-      - "2222:2222"
-      - "11112:11112"
-    networks:
-      - canal
-    volumes:
-      - ./canal-server-logs/:/home/admin/canal-server/logs/
-    environment:
-      - canal.instance.mysql.slaveId=1324
-      - canal.instance.master.address=mysql:3306
-      - canal.instance.dbUsername=canal
-      - canal.instance.dbPassword=canal
-      - canal.instance.connectionCharset=UTF-8
-      - canal.instance.filter.regex=.\*\\\\..\*
-    depends_on:
-      - mysql
 
   syncer:
     image: ${DOCKER_REGISTRY-}syncer
@@ -43,10 +22,10 @@ services:
     volumes:
       - ./logs:/logs
     networks:
-      - canal
+      - cdc
     depends_on:
-      - canal-server
+      - mysql
 
 networks:
-  canal:
+  cdc:
     driver: bridge
