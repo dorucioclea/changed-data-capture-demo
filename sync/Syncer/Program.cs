@@ -27,9 +27,6 @@ namespace Syncer
         private static async Task SyncByBinLog(IServiceProvider serviceProvider)
         {
             var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
-
-            binLogSyncService.Initialize();
-
             await binLogSyncService.Sync();
         }
     }
