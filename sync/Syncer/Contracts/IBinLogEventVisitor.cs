@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using MySqlCdc;
 using MySqlCdc.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -11,7 +12,7 @@ namespace Syncer.Contracts
     {
         public bool CanHandle(IBinlogEvent binLogEvent);
 
-        public Task Handle(IBinlogEvent binlogEvent, ExecutionContext executionContext);
+        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext);
     }
 
     public static class BinLogEventVisitorExtensions
@@ -27,5 +28,12 @@ namespace Syncer.Contracts
 
             return json;
         }
+    }
+
+    public class EventInfo
+    {
+        public BinlogOptions Options { get; set; }
+
+        public IBinlogEvent Event { get; set; }
     }
 }
