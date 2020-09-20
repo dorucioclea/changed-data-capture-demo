@@ -4,4 +4,5 @@ LABEL maintainer="CDC Demo"
 #
 # Tell MySQL what to initialize
 #
-COPY init.sql /data/applications/init.sql
+COPY init.sql /docker-entrypoint-initdb.d/
+COPY mariadb.cnf /etc/mysql/conf.d
