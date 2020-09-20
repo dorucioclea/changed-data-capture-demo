@@ -26,8 +26,8 @@ namespace Syncer
 
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(applicationConfiguration).CreateLogger();
 
-            serviceCollection.Configure<CanalConfiguration>(
-                applicationConfiguration.GetSection(nameof(CanalConfiguration)));
+            serviceCollection.Configure<DatabaseConfiguration>(
+                applicationConfiguration.GetSection(nameof(DatabaseConfiguration)));
 
             serviceCollection.AddSingleton(applicationConfiguration);
 
