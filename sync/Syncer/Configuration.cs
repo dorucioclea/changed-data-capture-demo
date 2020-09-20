@@ -30,6 +30,9 @@ namespace Syncer
             serviceCollection.Configure<DatabaseConfiguration>(
                 applicationConfiguration.GetSection(nameof(DatabaseConfiguration)));
 
+            serviceCollection.Configure<BinLogConfiguration>(
+                applicationConfiguration.GetSection(nameof(BinLogConfiguration)));
+
             serviceCollection.AddSingleton(applicationConfiguration);
 
             serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
@@ -41,6 +44,7 @@ namespace Syncer
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogCreateVisitor>();
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogUpdateVisitor>(); 
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogDeleteVisitor>();
+            serviceCollection.AddTransient<IBinLogEventVisitor, BinLogPositionVisitor>();
         }
     }
 }

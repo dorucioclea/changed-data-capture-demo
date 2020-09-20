@@ -17,15 +17,21 @@ namespace Syncer.Services
         private readonly ILogger<BinLogSyncService> _logger;
         private readonly IOptions<DatabaseConfiguration> _databaseConfiguration;
         private readonly IEnumerable<IBinLogEventVisitor> _binLogEventVisitors;
-        private readonly ExecutionContext _executionContext = new ExecutionContext();
+        private readonly ExecutionContext _executionContext;
 
         public BinLogSyncService(ILogger<BinLogSyncService> logger,
             IOptions<DatabaseConfiguration> databaseConfiguration,
+            IOptions<BinLogConfiguration> binLogConfiguration,
             IEnumerable<IBinLogEventVisitor> binLogEventVisitors)
         {
             _logger = logger;
             _databaseConfiguration = databaseConfiguration;
             _binLogEventVisitors = binLogEventVisitors;
+
+            _executionContext = new ExecutionContext
+            {
+                BinLogLedgerPath = binLogConfiguration.Value.FilePath
+            };
         }
 
         public void Initialize()
@@ -36,25 +42,12 @@ namespace Syncer.Services
             {
                 options.Port = _databaseConfiguration.Value.ServerPort;
                 options.Hostname = _databaseConfiguration.Value.ServerAddress;
-                // options.Database = _databaseConfiguration.Value.Database;
+                options.Database = _databaseConfiguration.Value.Database;
                 options.Username = _databaseConfiguration.Value.Credentials.UserName;
                 options.Password = _databaseConfiguration.Value.Credentials.Password;
                 options.SslMode = SslMode.DISABLED;
                 options.HeartbeatInterval = TimeSpan.FromSeconds(10);
                 options.Blocking = true;
-
-                // // Start replication from MariaDB GTID. Recommended.
-                // options.Binlog = BinlogOptions.FromGtid(GtidList.Parse("0-1-270"));
-                //
-                // // Start replication from MySQL GTID. Recommended.
-                // var gtidSet = "d4c17f0c-4f11-11ea-93e3-325d3e1cd1c8:1-107, f442510a-2881-11ea-b1dd-27916133dbb2:1-7";
-                // options.Binlog = BinlogOptions.FromGtid(GtidSet.Parse(gtidSet));
-                //
-                // // Start replication from the master binlog filename and position
-                // options.Binlog = BinlogOptions.FromPosition("mysql-bin.000008", 195);
-                //
-                // // Start replication from the master last binlog filename and position.
-                // options.Binlog = BinlogOptions.FromEnd();
 
                 // Start replication from the master first available(not purged) binlog filename and position.
                 options.Binlog = BinlogOptions.FromStart();
@@ -69,16 +62,10 @@ namespace Syncer.Services
         {
             await _binlogClient.ReplicateAsync(async binlogEvent =>
             {
-                //TODO: Record state so we can start from there the next time
-
-                var _ = _binlogClient.State;
-
                 foreach (var visitor in _binLogEventVisitors)
                 {
                     if (visitor.CanHandle(binlogEvent))
-                    {
-                        await visitor.Handle(binlogEvent, _executionContext);
-                    }
+                        await visitor.Handle(new EventInfo { Event = binlogEvent , Options = _binlogClient.State }, _executionContext);
                 }
             });
 
