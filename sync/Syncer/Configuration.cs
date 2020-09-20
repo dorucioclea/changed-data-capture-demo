@@ -45,6 +45,8 @@ namespace Syncer
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogUpdateVisitor>(); 
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogDeleteVisitor>();
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogPositionVisitor>();
+
+            serviceCollection.AddTransient<ICdcClientProvider, CdcClientProvider>();
         }
     }
 }
