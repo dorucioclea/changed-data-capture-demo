@@ -58,7 +58,10 @@ namespace Syncer.Services.Visitors
 
             executionContext.OrdinalConfiguration.Tables.Add(tableConfiguration);
 
-            _logger.LogInformation($"Acquired table metadata for {tableMapEvent.TableName}");
+            using (_logger.BeginScope("TableMapEvent"))
+            {
+                _logger.LogInformation($"Processing {tableMapEvent.DatabaseName}.{tableMapEvent.TableName}");
+            }
 
             return Task.CompletedTask;
         }
