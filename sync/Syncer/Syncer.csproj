@@ -8,8 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CanalSharp.Client" Version="0.3.3" />
-    <PackageReference Include="CanalSharp.Protocol" Version="0.3.3" />
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.8" />
