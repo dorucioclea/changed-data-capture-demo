@@ -95,12 +95,7 @@ namespace Syncer.Services
             _logger.LogInformation("CDC Client has been initialized successfully");
         }
 
-        public async ValueTask<SyncStatus> Sync()
-        {
-            await _binlogClient.ReplicateAsync(DoReplicate);
-
-            return new SyncStatus();
-        }
+        public async ValueTask Sync() => await _binlogClient.ReplicateAsync(DoReplicate);
 
         private async Task DoReplicate(IBinlogEvent binLogEvent)
         {
