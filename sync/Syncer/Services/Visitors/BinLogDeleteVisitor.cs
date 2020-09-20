@@ -22,9 +22,9 @@ namespace Syncer.Services.Visitors
             return binLogEvent is DeleteRowsEvent;
         }
 
-        public Task Handle(IBinlogEvent binlogEvent, ExecutionContext executionContext)
+        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
-            var deleteRows = binlogEvent as DeleteRowsEvent;
+            var deleteRows = binlogEvent.Event as DeleteRowsEvent;
             Debug.Assert(deleteRows != null, nameof(deleteRows) + " != null");
 
             HandleDeleteRowsEvent(deleteRows);

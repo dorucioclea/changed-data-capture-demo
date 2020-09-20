@@ -21,9 +21,9 @@ namespace Syncer.Services.Visitors
             return binLogEvent is WriteRowsEvent;
         }
 
-        public Task Handle(IBinlogEvent binlogEvent, ExecutionContext executionContext)
+        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
-            var writeRows = binlogEvent as WriteRowsEvent;
+            var writeRows = binlogEvent.Event as WriteRowsEvent;
 
             Debug.Assert(writeRows != null, nameof(writeRows) + " != null");
 

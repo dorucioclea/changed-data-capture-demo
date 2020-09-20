@@ -21,9 +21,9 @@ namespace Syncer.Services.Visitors
             return binLogEvent is UpdateRowsEvent;
         }
 
-        public Task Handle(IBinlogEvent binlogEvent, ExecutionContext executionContext)
+        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
-            var updatedRows = binlogEvent as UpdateRowsEvent;
+            var updatedRows = binlogEvent.Event as UpdateRowsEvent;
             Debug.Assert(updatedRows != null, nameof(updatedRows) + " != null");
 
             HandleUpdateRowsEvent(updatedRows);

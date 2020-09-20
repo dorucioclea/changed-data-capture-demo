@@ -23,9 +23,9 @@ namespace Syncer.Services.Visitors
             return binLogEvent is TableMapEvent;
         }
 
-        public Task Handle(IBinlogEvent binlogEvent, ExecutionContext executionContext)
+        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
-            var tableMapEvent = binlogEvent as TableMapEvent;
+            var tableMapEvent = binlogEvent.Event as TableMapEvent;
             Debug.Assert(tableMapEvent != null, nameof(tableMapEvent) + " != null");
 
 
