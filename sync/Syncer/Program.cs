@@ -30,15 +30,7 @@ namespace Syncer
 
             binLogSyncService.Initialize();
 
-            while (true)
-            {
-                var syncStatus = await binLogSyncService.Sync();
-
-                if (!syncStatus.HasMessages)
-                {
-                    await Task.Delay(500);
-                }
-            }
+            await binLogSyncService.Sync();
         }
     }
 }
