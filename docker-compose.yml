@@ -1,18 +1,17 @@
 version: '3.4'
 services:
-  mysql:
-    image: mysql:5.7
-    container_name: mysql
+  mariadb-cdc:
+    image: mariadb-cdc
+    container_name: mariadb-cdc
+    build:
+      context: ./provisioning/mysql
+      dockerfile: Dockerfile
     ports:
       - "4406:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=000000
     networks:
       - cdc
-    volumes:
-      - ./provisioning/mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
-      - ./provisioning/var/lib/mysql:/var/lib/mysql
-      - ./provisioning/mysql/init/:/docker-entrypoint-initdb.d/
 
   syncer:
     image: ${DOCKER_REGISTRY-}syncer
@@ -24,7 +23,7 @@ services:
     networks:
       - cdc
     depends_on:
-      - mysql
+      - mariadb-cdc
 
 networks:
   cdc:
