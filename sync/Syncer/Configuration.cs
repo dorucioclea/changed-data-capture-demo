@@ -5,6 +5,7 @@ using Syncer.Configuration;
 using Syncer.Configuration.Utils;
 using Syncer.Contracts;
 using Syncer.Services;
+using Syncer.Services.Visitors;
 
 namespace Syncer
 {
@@ -34,6 +35,12 @@ namespace Syncer
             serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
 
             serviceCollection.AddTransient<IBinLogSyncService, BinLogSyncService>();
+
+
+            serviceCollection.AddTransient<IBinLogEventVisitor, BinLogTableMapVisitor>();
+            serviceCollection.AddTransient<IBinLogEventVisitor, BinLogCreateVisitor>();
+            serviceCollection.AddTransient<IBinLogEventVisitor, BinLogUpdateVisitor>(); 
+            serviceCollection.AddTransient<IBinLogEventVisitor, BinLogDeleteVisitor>();
         }
     }
 }

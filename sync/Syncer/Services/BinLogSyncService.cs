@@ -5,9 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MySqlCdc;
 using MySqlCdc.Constants;
-using MySqlCdc.Events;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Syncer.Configuration;
 using Syncer.Contracts;
 using Syncer.Entities;
@@ -19,11 +16,16 @@ namespace Syncer.Services
         private BinlogClient _binlogClient;
         private readonly ILogger<BinLogSyncService> _logger;
         private readonly IOptions<DatabaseConfiguration> _databaseConfiguration;
+        private readonly IEnumerable<IBinLogEventVisitor> _binLogEventVisitors;
+        private readonly ExecutionContext _executionContext = new ExecutionContext();
 
-        public BinLogSyncService(ILogger<BinLogSyncService> logger, IOptions<DatabaseConfiguration> databaseConfiguration)
+        public BinLogSyncService(ILogger<BinLogSyncService> logger,
+            IOptions<DatabaseConfiguration> databaseConfiguration,
+            IEnumerable<IBinLogEventVisitor> binLogEventVisitors)
         {
             _logger = logger;
             _databaseConfiguration = databaseConfiguration;
+            _binLogEventVisitors = binLogEventVisitors;
         }
 
         public void Initialize()
@@ -65,91 +67,22 @@ namespace Syncer.Services
 
         public async ValueTask<SyncStatus> Sync()
         {
-            await _binlogClient.ReplicateAsync(async (binlogEvent) =>
+            await _binlogClient.ReplicateAsync(async binlogEvent =>
             {
-                var state = _binlogClient.State;
+                //TODO: Record state so we can start from there the next time
 
-                if (binlogEvent is TableMapEvent tableMap)
+                var _ = _binlogClient.State;
+
+                foreach (var visitor in _binLogEventVisitors)
                 {
-                    HandleTableMapEvent(tableMap);
+                    if (visitor.CanHandle(binlogEvent))
+                    {
+                        await visitor.Handle(binlogEvent, _executionContext);
+                    }
                 }
-                else if (binlogEvent is WriteRowsEvent writeRows)
-                {
-                    HandleWriteRowsEvent(writeRows);
-                }
-                else if (binlogEvent is UpdateRowsEvent updateRows)
-                {
-                    HandleUpdateRowsEvent(updateRows);
-                }
-                else if (binlogEvent is DeleteRowsEvent deleteRows)
-                {
-                    HandleDeleteRowsEvent(deleteRows);
-                }
-                else PrintEventAsync(binlogEvent);
             });
 
             return new SyncStatus();
-        }
-
-            private void PrintEventAsync(IBinlogEvent binlogEvent)
-            {
-                try
-                {
-                    var json = JsonConvert.SerializeObject(binlogEvent, Formatting.Indented,
-                        new JsonSerializerSettings()
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                            Converters = new List<JsonConverter> { new StringEnumConverter() }
-                        });
-
-
-                    _logger.LogInformation(json);
-                }
-                catch (Exception exception)
-                {
-
-                }
-            }
-
-        private void HandleTableMapEvent(TableMapEvent tableMap)
-        {
-            Console.WriteLine($"Processing {tableMap.DatabaseName}.{tableMap.TableName}");
-             PrintEventAsync(tableMap);
-        }
-
-        private void HandleWriteRowsEvent(WriteRowsEvent writeRows)
-        {
-            Console.WriteLine($"{writeRows.Rows.Count} rows were written");
-            PrintEventAsync(writeRows);
-
-            foreach (var row in writeRows.Rows)
-            {
-                // Do something
-            }
-        }
-
-        private void HandleUpdateRowsEvent(UpdateRowsEvent updatedRows)
-        {
-            Console.WriteLine($"{updatedRows.Rows.Count} rows were updated");
-            PrintEventAsync(updatedRows);
-
-            foreach (var row in updatedRows.Rows)
-            {
-                var rowBeforeUpdate = row.BeforeUpdate;
-                var rowAfterUpdate = row.AfterUpdate;
-                // Do something
-            }
-        }
-
-        private void HandleDeleteRowsEvent(DeleteRowsEvent deleteRows)
-        {
-            Console.WriteLine($"{deleteRows.Rows.Count} rows were deleted");
-            PrintEventAsync(deleteRows);
-
-            foreach (var row in deleteRows.Rows)
-            {
-                // Do something
-            }
         }
     }
 }
