@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MySqlCdc;
 using MySqlCdc.Constants;
+using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
 using Syncer.Entities;
@@ -96,16 +97,18 @@ namespace Syncer.Services
 
         public async ValueTask<SyncStatus> Sync()
         {
-            await _binlogClient.ReplicateAsync(async binlogEvent =>
-            {
-                foreach (var visitor in _binLogEventVisitors)
-                {
-                    if (visitor.CanHandle(binlogEvent))
-                        await visitor.Handle(new EventInfo { Event = binlogEvent , Options = _binlogClient.State }, _executionContext);
-                }
-            });
+            await _binlogClient.ReplicateAsync(DoReplicate);
 
             return new SyncStatus();
         }
+
+        private async Task DoReplicate(IBinlogEvent binLogEvent)
+        {
+            foreach (var visitor in _binLogEventVisitors)
+            {
+                if (visitor.CanHandle(binLogEvent))
+                    await visitor.Handle(new EventInfo { Event = binLogEvent, Options = _binlogClient.State }, _executionContext);
+            }
+        } 
     }
 }
