@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,8 +27,10 @@ namespace Syncer
 
         private static async Task SyncByBinLog(IServiceProvider serviceProvider)
         {
+            var tokenSource = new CancellationTokenSource();
+            
             var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
-            await binLogSyncService.Sync();
+            await binLogSyncService.Sync(tokenSource.Token);
         }
     }
 }

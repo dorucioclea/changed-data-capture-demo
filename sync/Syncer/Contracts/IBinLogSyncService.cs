@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Syncer.Contracts
 {
     public interface IBinLogSyncService
     {
-        ValueTask Sync();
+        ValueTask Sync(CancellationToken cancellationToken);
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Syncer.Configuration;
 using Syncer.Contracts;
+using ExecutionContext = Syncer.Configuration.ExecutionContext;
 
 namespace Syncer.Services
 {
@@ -35,7 +37,7 @@ namespace Syncer.Services
         }
 
 
-        public async ValueTask Sync()
+        public async ValueTask Sync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Sync process starting ");
 
@@ -48,7 +50,7 @@ namespace Syncer.Services
                     if (visitor.CanHandle(@event))
                         await visitor.Handle(new EventInfo { Event = @event, Options = binLogClient.State }, _executionContext);
                 }
-            });
+            }, cancellationToken);
 
             _logger.LogInformation("Sync process stopping");
         }
