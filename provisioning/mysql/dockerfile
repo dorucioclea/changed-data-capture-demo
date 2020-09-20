@@ -1,0 +1,7 @@
+FROM mariadb:10.5.5
+LABEL maintainer="CDC Demo"
+
+#
+# Tell MySQL what to initialize
+#
+COPY init.sql /data/applications/init.sql
