@@ -16,21 +16,15 @@ namespace Syncer
 
             try
             {
-                await SyncByBinLog(serviceProvider);
+                var tokenSource = new CancellationTokenSource();
+
+                var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
+                await binLogSyncService.Sync(tokenSource.Token);
             }
             catch (Exception exception)
             {
                 logger.LogError($"TopMost error: {exception.Message}");
             }
-        }
-
-
-        private static async Task SyncByBinLog(IServiceProvider serviceProvider)
-        {
-            var tokenSource = new CancellationTokenSource();
-            
-            var binLogSyncService = serviceProvider.GetService<IBinLogSyncService>();
-            await binLogSyncService.Sync(tokenSource.Token);
         }
     }
 }
