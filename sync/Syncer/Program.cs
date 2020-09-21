@@ -24,6 +24,12 @@ namespace Syncer
             catch (Exception exception)
             {
                 logger.LogError($"TopMost error: {exception.Message}");
+                await Task.Delay(1000);
+            }
+            finally
+            {
+                Console.WriteLine("Press any key to exit");
+                Console.ReadKey();
             }
         }
     }
