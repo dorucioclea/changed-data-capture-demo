@@ -32,6 +32,7 @@ namespace Syncer.Services
                 options.Password = databaseConfiguration.Credentials.Password;
                 options.SslMode = SslMode.DISABLED;
                 options.HeartbeatInterval = TimeSpan.FromSeconds(10);
+                options.ServerId = databaseConfiguration.ServerId;
                 options.Blocking = true;
 
                 // Start replication from the master first available(not purged) binlog filename and position.
