@@ -37,7 +37,6 @@ namespace Syncer.Services
             };
         }
 
-
         public async ValueTask Sync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Sync process starting ");

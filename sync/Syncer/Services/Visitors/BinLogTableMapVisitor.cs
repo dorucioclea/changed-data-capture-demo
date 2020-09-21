@@ -24,13 +24,13 @@ namespace Syncer.Services.Visitors
             return binLogEvent is TableMapEvent;
         }
 
-        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
+        public ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var tableMapEvent = binlogEvent.Event as TableMapEvent;
             Throw.IfNull(tableMapEvent, nameof(tableMapEvent));
 
             HandleTableMapEvent(tableMapEvent, executionContext);
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         private void HandleTableMapEvent(TableMapEvent tableMapEvent, ExecutionContext executionContext)

@@ -22,14 +22,14 @@ namespace Syncer.Services.Visitors
             return binLogEvent is UpdateRowsEvent;
         }
 
-        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
+        public ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var updatedRows = binlogEvent.Event as UpdateRowsEvent;
             Throw.IfNull(updatedRows, nameof(updatedRows));
 
             HandleUpdateRowsEvent(updatedRows);
 
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         private void HandleUpdateRowsEvent(UpdateRowsEvent updatedRows)

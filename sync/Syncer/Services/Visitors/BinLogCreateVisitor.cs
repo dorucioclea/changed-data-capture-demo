@@ -22,7 +22,7 @@ namespace Syncer.Services.Visitors
             return binLogEvent is WriteRowsEvent;
         }
 
-        public Task Handle(EventInfo binlogEvent, ExecutionContext executionContext)
+        public ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var writeRows = binlogEvent.Event as WriteRowsEvent;
 
@@ -30,7 +30,7 @@ namespace Syncer.Services.Visitors
 
             HandleWriteRowsEvent(writeRows);
 
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         private void HandleWriteRowsEvent(WriteRowsEvent writeRows)
