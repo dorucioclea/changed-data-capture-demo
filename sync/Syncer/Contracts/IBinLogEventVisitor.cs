@@ -5,6 +5,7 @@ using MySqlCdc.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Syncer.Configuration;
+using Syncer.Entities;
 
 namespace Syncer.Contracts
 {
@@ -28,12 +29,5 @@ namespace Syncer.Contracts
 
             return json;
         }
-    }
-
-    public class EventInfo
-    {
-        public BinlogOptions Options { get; set; }
-
-        public IBinlogEvent Event { get; set; }
     }
 }

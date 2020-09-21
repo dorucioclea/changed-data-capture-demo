@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Syncer.Configuration;
 using Syncer.Contracts;
+using Syncer.Entities;
 using ExecutionContext = Syncer.Configuration.ExecutionContext;
 
 namespace Syncer.Services

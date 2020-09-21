@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
+using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
