@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Syncer.Configuration;
-using Syncer.Configuration.Utils;
 using Syncer.Contracts;
 using Syncer.Services;
 using Syncer.Services.Visitors;
