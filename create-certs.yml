@@ -2,7 +2,7 @@ version: '2.2'
 
 services:
   create_certs:
-    image: elasticsearch_create_certificates
+    image: elasticsearch
     container_name: create_certs
     build:
       context: ./provisioning/elasticsearch
@@ -21,12 +21,12 @@ services:
       - certs:/certs
       - .:/usr/share/elasticsearch/config/certificates
     networks:
-      - elastic
+      - cdc
 
 volumes:
   certs:
     driver: local
 
 networks:
-  elastic:
+  cdc:
     driver: bridge
