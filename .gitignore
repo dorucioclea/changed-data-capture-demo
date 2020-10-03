@@ -355,3 +355,4 @@ provisioning/var/lib/mysql/*
 !logs/**
 !docker-compose.infrastructure.yml
 !documentation/**
+!Images/**
