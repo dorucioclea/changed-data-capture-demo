@@ -1,0 +1,10 @@
+# Ignore everything
+*
+# But descend into directories
+!*/
+# Recursively allow files under subtree
+#!/directory/**
+
+# Allow files by name
+!Readme.md
+!.gitignore
