@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ArgumentValidator;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
@@ -8,13 +9,11 @@ using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
-    public class BinLogUpdateVisitor : IBinLogEventVisitor
+    public class BinLogUpdateVisitor : BaseVisitor<BinLogUpdateVisitor>, IBinLogEventVisitor
     {
-        private readonly ILogger<BinLogUpdateVisitor> _logger;
-
-        public BinLogUpdateVisitor(ILogger<BinLogUpdateVisitor> logger)
+        public BinLogUpdateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogUpdateVisitor> logger)
+            : base(databaseConfiguration, logger)
         {
-            _logger = logger;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -43,10 +42,10 @@ namespace Syncer.Services.Visitors
                 // Do something
             }
 
-            using (_logger.BeginScope("UpdateRowEvent"))
+            using (Logger.BeginScope("UpdateRowEvent"))
             {
-                _logger.LogInformation(eventString);
-                _logger.LogInformation($"{updatedRows.Rows.Count} rows were updated");
+                Logger.LogInformation(eventString);
+                Logger.LogInformation($"{updatedRows.Rows.Count} rows were updated");
             }
         }
     }
