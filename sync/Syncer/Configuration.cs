@@ -7,6 +7,8 @@ using Nest;
 using Serilog;
 using Syncer.Configuration;
 using Syncer.Contracts;
+using Syncer.Elasticsearch;
+using Syncer.Elasticsearch.Abstractions;
 using Syncer.Services;
 using Syncer.Services.Visitors;
 
@@ -54,7 +56,7 @@ namespace Syncer
 
             serviceCollection.AddTransient<ICdcClientProvider, CdcClientProvider>();
 
-            serviceCollection.AddTransient<IElasticClient>(provider =>
+            serviceCollection.AddTransient<IElasticsearchRepository>(provider =>
             {
                 var configuration = provider.GetService<IConfiguration>();
 
@@ -69,7 +71,9 @@ namespace Syncer
                     )
                 );
 
-                return elasticClient;
+                var elasticSearchRepositoryAsync = new ElasticsearchRepository(elasticClient);
+
+                return elasticSearchRepositoryAsync;
             });
         }
     }
