@@ -18,7 +18,7 @@ namespace Syncer.Elasticsearch.Queries
 
         protected GetQuery(DocumentPath<T> documentPath)
         {
-            this._documentPath = documentPath;
+            _documentPath = documentPath;
         }
 
         protected override IGetResponse<T> ExecuteCore(IElasticClient client, string index)

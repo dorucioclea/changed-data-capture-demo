@@ -19,13 +19,13 @@ namespace Syncer.Elasticsearch.Queries.Common
         protected override IDeleteResponse ExecuteCore(IElasticClient client, string index)
         {
             var id = DocumentPath<T>.Id(_id);
-            return client.Delete<T>(id ,descriptor => BuildQueryCore(descriptor).Index(index));
+            return client.Delete(id ,descriptor => BuildQueryCore(descriptor).Index(index));
         }
 
         protected override Task<IDeleteResponse> ExecuteCoreAsync(IElasticClient client, string index)
         {
             var id = DocumentPath<T>.Id(_id);
-            return client.DeleteAsync<T>(id, descriptor => BuildQueryCore(descriptor).Index(index));
+            return client.DeleteAsync(id, descriptor => BuildQueryCore(descriptor).Index(index));
         }
 
         protected virtual DeleteDescriptor<T> BuildQueryCore(DeleteDescriptor<T> descriptor)

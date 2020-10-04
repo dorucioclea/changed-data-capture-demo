@@ -88,7 +88,7 @@ namespace Syncer.Elasticsearch
 
         public ElasticsearchRepository(IElasticClient client)
         {
-            this._client = client;
+            _client = client;
         }
 
         protected virtual string GetIndexName(IElasticClient client, string index = null)
