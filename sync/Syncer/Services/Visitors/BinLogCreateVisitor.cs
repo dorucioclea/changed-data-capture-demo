@@ -13,11 +13,8 @@ namespace Syncer.Services.Visitors
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogCreateVisitor : BaseVisitor<BinLogCreateVisitor>, IBinLogEventVisitor
     {
-        private readonly ILogger<BinLogCreateVisitor> _logger;
-
         public BinLogCreateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogCreateVisitor> logger) : base(databaseConfiguration, logger)
         {
-            _logger = logger;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -47,10 +44,10 @@ namespace Syncer.Services.Visitors
                 // Do something
             }
 
-            using (_logger.BeginScope("CreateRowEvent"))
+            using (Logger.BeginScope("CreateRowEvent"))
             {
-                _logger.LogInformation(eventString);
-                _logger.LogInformation($"{writeRows.Rows.Count} rows were written");
+                Logger.LogInformation(eventString);
+                Logger.LogInformation($"{writeRows.Rows.Count} rows were written");
             }
         }
     }
