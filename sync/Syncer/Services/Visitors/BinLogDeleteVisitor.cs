@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ArgumentValidator;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
@@ -9,13 +10,11 @@ using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
-    public class BinLogDeleteVisitor : IBinLogEventVisitor
+    public class BinLogDeleteVisitor : BaseVisitor<BinLogDeleteVisitor>, IBinLogEventVisitor
     {
-        private readonly ILogger<BinLogDeleteVisitor> _logger;
-
-        public BinLogDeleteVisitor(ILogger<BinLogDeleteVisitor> logger)
+        public BinLogDeleteVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogDeleteVisitor> logger) 
+            : base(databaseConfiguration, logger)
         {
-            _logger = logger;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -43,10 +42,10 @@ namespace Syncer.Services.Visitors
                 // Do something
             }
 
-            using (_logger.BeginScope("DeleteRowEvent"))
+            using (Logger.BeginScope("DeleteRowEvent"))
             {
-                _logger.LogInformation(eventString);
-                _logger.LogInformation($"{deleteRows.Rows.Count} rows were deleted");
+                Logger.LogInformation(eventString);
+                Logger.LogInformation($"{deleteRows.Rows.Count} rows were deleted");
             }
         }
     }
