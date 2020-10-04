@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Elasticsearch.Net;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Nest;
 using Serilog;
 using Syncer.Configuration;
 using Syncer.Contracts;
@@ -32,6 +36,9 @@ namespace Syncer
             serviceCollection.Configure<BinLogConfiguration>(
                 applicationConfiguration.GetSection(nameof(BinLogConfiguration)));
 
+            serviceCollection.Configure<ElasticSearchConfiguration>(
+                applicationConfiguration.GetSection(nameof(ElasticSearchConfiguration)));
+
             serviceCollection.AddSingleton(applicationConfiguration);
 
             serviceCollection.AddLogging(configuration => configuration.AddConsole().AddSerilog());
@@ -46,6 +53,24 @@ namespace Syncer
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogPositionVisitor>();
 
             serviceCollection.AddTransient<ICdcClientProvider, CdcClientProvider>();
+
+            serviceCollection.AddTransient<IElasticClient>(provider =>
+            {
+                var configuration = provider.GetService<IConfiguration>();
+
+                var elasticSearchConfiguration =
+                    configuration.Get<IOptions<ElasticSearchConfiguration>>();
+
+                var elasticClient = new ElasticClient(
+                    elasticSearchConfiguration.Value.Host,
+                    new BasicAuthenticationCredentials(
+                        elasticSearchConfiguration.Value.UserName, 
+                        elasticSearchConfiguration.Value.Password
+                    )
+                );
+
+                return elasticClient;
+            });
         }
     }
 }
