@@ -1,18 +1,21 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
 using ArgumentValidator;
+using Microsoft.Extensions.Options;
 using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
-    public class BinLogCreateVisitor : IBinLogEventVisitor
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    public class BinLogCreateVisitor : BaseVisitor<BinLogCreateVisitor>, IBinLogEventVisitor
     {
         private readonly ILogger<BinLogCreateVisitor> _logger;
 
-        public BinLogCreateVisitor(ILogger<BinLogCreateVisitor> logger)
+        public BinLogCreateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogCreateVisitor> logger) : base(databaseConfiguration, logger)
         {
             _logger = logger;
         }
@@ -28,12 +31,14 @@ namespace Syncer.Services.Visitors
 
             Throw.IfNull(writeRows, nameof(writeRows));
 
-            HandleWriteRowsEvent(writeRows);
+            var preProcessInformation = PreProcess(writeRows.TableId, executionContext);
+
+            HandleWriteRowsEvent(writeRows, preProcessInformation);
 
             return new ValueTask(Task.CompletedTask);
         }
 
-        private void HandleWriteRowsEvent(WriteRowsEvent writeRows)
+        private void HandleWriteRowsEvent(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
         {
             var eventString = this.GetBinLogEventJson(writeRows);
 
