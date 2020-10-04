@@ -352,6 +352,8 @@ MigrationBackup/
 provisioning/var/lib/mysql/*
 *
 !*/
+!.env.example
+!provisioning/**
 !logs/**
 !docker-compose.infrastructure.yml
 !documentation/**
