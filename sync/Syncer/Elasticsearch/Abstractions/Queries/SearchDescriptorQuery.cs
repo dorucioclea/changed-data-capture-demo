@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Nest;
 
 namespace Syncer.Elasticsearch.Abstractions.Queries
 {
-	public abstract class SearchDescriptorQuery<TDocument> : SearchQueryObject<TDocument>
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public abstract class SearchDescriptorQuery<TDocument> : SearchQueryObject<TDocument>
 		where TDocument : class
 	{
 		protected override ISearchResponse<TDocument> ExecuteCore(IElasticClient client, string index)
@@ -19,6 +21,7 @@ namespace Syncer.Elasticsearch.Abstractions.Queries
 	    protected abstract SearchDescriptor<TDocument> BuildQuery(SearchDescriptor<TDocument> descriptor);
 	}
 
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public abstract class SearchDescriptorQuery<TDocument, TReturnDocument> : SearchQueryObject<TReturnDocument>
 		where TDocument : class
 		where TReturnDocument : class

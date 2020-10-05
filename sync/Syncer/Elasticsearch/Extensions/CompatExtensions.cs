@@ -1,7 +1,9 @@
-﻿using Nest;
+﻿using System.Diagnostics.CodeAnalysis;
+using Nest;
 
 namespace Syncer.Elasticsearch.Extensions
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal static class CompatExtensions
     {
         internal static IndexDescriptor<T> Refresh<T>(this IndexDescriptor<T> descriptor, bool refresh = true) where T : class

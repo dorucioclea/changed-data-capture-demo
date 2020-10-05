@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Syncer.Elasticsearch.Exceptions
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class ElasticsearchException : Exception
     {
         public string ExceptionType { get; }

@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Nest;
 using Syncer.Elasticsearch.Abstractions.Queries;
 
 namespace Syncer.Elasticsearch.Queries
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public abstract class DeleteWithQueryObject<T> : ElasticClientQueryObject<DeleteByQueryResponse> where T : class
     {
         protected override DeleteByQueryResponse ExecuteCore(IElasticClient client, string index)

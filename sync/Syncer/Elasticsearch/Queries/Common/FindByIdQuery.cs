@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Nest;
 using Syncer.Elasticsearch.Abstractions.Queries;
 
 namespace Syncer.Elasticsearch.Queries.Common
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class FindByIdQuery<T> : ElasticClientQueryObject<T> where T : class
     {
         private readonly string _id;

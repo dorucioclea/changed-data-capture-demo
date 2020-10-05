@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Nest;
 using Syncer.Elasticsearch.Abstractions.Queries;
 
 namespace Syncer.Elasticsearch.Abstractions
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
     public interface IElasticsearchRepository : IElasticsearchRepositoryAsync
     {
         /// <summary>
