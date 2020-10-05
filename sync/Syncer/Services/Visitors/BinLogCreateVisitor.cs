@@ -14,15 +14,11 @@ namespace Syncer.Services.Visitors
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogCreateVisitor : BaseVisitor<BinLogCreateVisitor>, IBinLogEventVisitor
     {
-        private readonly IElasticsearchRepository _elasticsearchRepository;
-
         public BinLogCreateVisitor(
-            IElasticsearchRepository elasticsearchRepository,
             IOptions<DatabaseConfiguration> databaseConfiguration, 
             ILogger<BinLogCreateVisitor> logger) 
             : base(databaseConfiguration, logger)
         {
-            _elasticsearchRepository = elasticsearchRepository;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -42,12 +38,10 @@ namespace Syncer.Services.Visitors
 
             return new ValueTask(Task.CompletedTask);
         }
-
+            
         private void HandleWriteRowsEvent(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
         {
             var eventString = this.GetBinLogEventJson(writeRows);
-
-            
 
             foreach (var _ in writeRows.Rows)
             {
