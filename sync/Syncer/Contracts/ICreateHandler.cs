@@ -1,14 +1,17 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MySqlCdc.Events;
 using Syncer.Elasticsearch.Documents;
 using Syncer.Services.Visitors;
 
 namespace Syncer.Contracts
 {
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
-    public interface ICreateHandler<T> where T: BaseDocument, new()
+    public interface ICreateHandler
     {
         ValueTask HandleCreate(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation);
+    }
+
+    public interface ICreateHandler<T>: IHandlerDescriptor<T>, ICreateHandler where T: BaseDocument, new()
+    {
+        
     }
 }
