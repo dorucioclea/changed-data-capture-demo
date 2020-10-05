@@ -1,14 +1,18 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MySqlCdc.Events;
 using Syncer.Elasticsearch.Documents;
 using Syncer.Services.Visitors;
 
 namespace Syncer.Contracts
 {
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
-    public interface IDeleteHandler<T> where T: BaseDocument, new()
+    public interface IDeleteHandler
     {
         ValueTask HandleDelete(DeleteRowsEvent deleteRows, PreProcessInformation preProcessInformation);
+    }
+
+    
+    public interface IDeleteHandler<T> : IHandlerDescriptor<T>, IDeleteHandler where T : BaseDocument, new()
+    {
+
     }
 }
