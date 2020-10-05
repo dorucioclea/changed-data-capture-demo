@@ -8,7 +8,7 @@ using Syncer.Services.Visitors;
 
 namespace Syncer.Services.Handlers
 {
-    public class TestDocumentCreateHandler : HandlerBase<TestDocument>, ICreateHandler
+    public class TestDocumentCreateHandler : HandlerBase, ICreateHandler<TestDocument>
     {
         private readonly IElasticsearchRepository _elasticsearchRepository;
 
@@ -19,9 +19,9 @@ namespace Syncer.Services.Handlers
 
         public async ValueTask HandleCreate(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
         {
-            var newItems = GetItemsFrom(writeRows.Rows, preProcessInformation.TableConfiguration.Columns);
+            var newItems = GetItemsFrom<TestDocument>(writeRows.Rows, preProcessInformation.TableConfiguration.Columns);
             var indexName = newItems.First().IndexName;
-
+            
             await _elasticsearchRepository.BulkAsync(newItems, indexName, true);
         }
     }

@@ -8,7 +8,7 @@ using Syncer.Services.Visitors;
 
 namespace Syncer.Services.Handlers
 {
-    public class TestDocumentDeleteHandler: HandlerBase<TestDocument>, IDeleteHandler
+    public class TestDocumentDeleteHandler: HandlerBase, IDeleteHandler<TestDocument>
     {
         private readonly IElasticsearchRepository _elasticsearchRepository;
 
@@ -19,7 +19,7 @@ namespace Syncer.Services.Handlers
 
         public async ValueTask HandleDelete(DeleteRowsEvent deleteRows, PreProcessInformation preProcessInformation)
         {
-            var itemsToDelete = GetItemsFrom(deleteRows.Rows, preProcessInformation.TableConfiguration.Columns);
+            var itemsToDelete = GetItemsFrom<TestDocument>(deleteRows.Rows, preProcessInformation.TableConfiguration.Columns);
             var indexName = itemsToDelete.First().IndexName;
 
             foreach (var item in itemsToDelete)
