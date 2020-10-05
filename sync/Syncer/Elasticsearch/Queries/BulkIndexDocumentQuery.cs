@@ -6,7 +6,7 @@ using Syncer.Elasticsearch.Extensions;
 
 namespace Syncer.Elasticsearch.Queries
 {
-	public class BulkIndexDocumentQuery<T> : ElasticClientQueryObject<IBulkResponse> where T : class
+	public class BulkIndexDocumentQuery<T> : ElasticClientQueryObject<BulkResponse> where T : class
 	{
 		private readonly IEnumerable<T> _documents;
 		private readonly bool _refreshOnSave;
@@ -17,12 +17,12 @@ namespace Syncer.Elasticsearch.Queries
 			_refreshOnSave = refreshOnSave;
 		}
 
-		protected override IBulkResponse ExecuteCore(IElasticClient client, string index)
+		protected override BulkResponse ExecuteCore(IElasticClient client, string index)
 		{
 			return client.Bulk(desc => BuildQueryCore(desc, index, _refreshOnSave));
 		}
 
-	    protected override Task<IBulkResponse> ExecuteCoreAsync(IElasticClient client, string index)
+	    protected override Task<BulkResponse> ExecuteCoreAsync(IElasticClient client, string index)
 	    {
             return client.BulkAsync(desc => BuildQueryCore(desc, index, _refreshOnSave));
         }
@@ -32,7 +32,6 @@ namespace Syncer.Elasticsearch.Queries
 		{
 			descriptor = descriptor
 				.IndexMany(_documents, (d, i) => d
-                    .Type(i.GetType())
 					.Index(index)
 				)
 				.Refresh(refreshOnSave);

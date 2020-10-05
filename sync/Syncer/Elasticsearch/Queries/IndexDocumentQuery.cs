@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
+using Elasticsearch.Net;
 using Nest;
 using Syncer.Elasticsearch.Abstractions.Queries;
-using Syncer.Elasticsearch.Extensions;
 
 namespace Syncer.Elasticsearch.Queries
 {
-	public class IndexDocumentQuery<T> : ElasticClientQueryObject<IIndexResponse> where T : class
+	public class IndexDocumentQuery<T> : ElasticClientQueryObject<IndexResponse> where T : class
 	{
 		private readonly T _document;
 		private readonly bool _refreshOnSave;
@@ -16,21 +16,22 @@ namespace Syncer.Elasticsearch.Queries
 			_refreshOnSave = refreshOnSave;
 		}
 
-		protected override IIndexResponse ExecuteCore(IElasticClient client, string index)
+		protected override IndexResponse ExecuteCore(IElasticClient client, string index)
 		{
 			return client.Index(_document, desc => BuildQueryCore(desc, _refreshOnSave).Index(index));
 		}
 
-	    protected override Task<IIndexResponse> ExecuteCoreAsync(IElasticClient client, string index)
+	    protected override Task<IndexResponse> ExecuteCoreAsync(IElasticClient client, string index)
 	    {
             return client.IndexAsync(_document, desc => BuildQueryCore(desc, _refreshOnSave).Index(index));
         }
 
 	    protected virtual IndexDescriptor<T> BuildQueryCore(IndexDescriptor<T> descriptor, bool refreshOnSave)
-		{
+        {
+            var elasticRefresh = refreshOnSave ? Refresh.True : Refresh.False;
+
 			descriptor = descriptor
-				.Type<T>()
-				.Refresh(refreshOnSave);
+				.Refresh(elasticRefresh);
 			return BuildQuery(descriptor);
 		}
         

@@ -60,7 +60,7 @@ namespace Syncer.Elasticsearch.Abstractions
         /// <param name="index">(optional) index on which to execute the query, if not supplied the index default index will be used</param>
         /// <param name="refreshOnSave">specifies whether to refresh the search index after completing the save operation, this will make the document immediately available to search, only use when you understand the impact</param>
         /// <returns></returns>
-        IIndexResponse Save<T>(T document, string index = null, bool? refreshOnSave = null) where T : class;
+        IndexResponse Save<T>(T document, string index = null, bool? refreshOnSave = null) where T : class;
         /// <summary>
         /// Issues a bulk insert operation for all items in a single bulk batch
         /// </summary>
@@ -70,7 +70,7 @@ namespace Syncer.Elasticsearch.Abstractions
         /// <param name="refreshOnSave">specifies whether to refresh the search index after completing the save operation, this will make the document immediately available to search, only use when you understand the impact</param>
         /// <returns></returns>
         /// <remarks>Manage your bulk batch size, do not flood the bulk api</remarks>
-        IBulkResponse Bulk<T>(IEnumerable<T> documents, string index = null, bool? refreshOnSave = null) where T : class;
+        BulkResponse Bulk<T>(IEnumerable<T> documents, string index = null, bool? refreshOnSave = null) where T : class;
         /// <summary>
         /// Removes an individual item by deriving the id from the given <paramref name="document"/>
         /// </summary>
@@ -79,7 +79,7 @@ namespace Syncer.Elasticsearch.Abstractions
         /// <param name="index">(optional) index on which to execute the query, if not supplied the index default index will be used</param>
         /// <param name="refreshOnDelete">specifies whether to refresh the search index after completing the delete operation, only use when you understand the impact</param>
         /// <returns></returns>
-        IDeleteResponse Delete<T>(T document, string index = null, bool? refreshOnDelete = null) where T : class;
+        DeleteResponse Delete<T>(T document, string index = null, bool? refreshOnDelete = null) where T : class;
         /// <summary>
         /// Removes an individual item identified by <paramref name="id"/>
         /// </summary>
@@ -88,7 +88,7 @@ namespace Syncer.Elasticsearch.Abstractions
         /// <param name="index">(optional) index on which to execute the query, if not supplied the index default index will be used</param>
         /// <param name="refreshOnDelete">specifies whether to refresh the search index after completing the delete operation, only use when you understand the impact</param>
         /// <returns></returns>
-        IDeleteResponse Delete<T>(string id, string index = null, bool? refreshOnDelete = null) where T : class;
+        DeleteResponse Delete<T>(string id, string index = null, bool? refreshOnDelete = null) where T : class;
         /// <summary>
         /// Determines whether <paramref name="document"/> exists in the given index
         /// </summary>

@@ -2,7 +2,7 @@
 
 namespace Syncer.Elasticsearch.Documents
 {
-    [ElasticsearchType(IdProperty = "Id", Name = "_doc")]
+    [ElasticsearchType(IdProperty = "Id", RelationName = "_doc")]
     public abstract class BaseDocument
     {
         [Keyword]

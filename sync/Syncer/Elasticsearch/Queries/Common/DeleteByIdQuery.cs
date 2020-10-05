@@ -5,7 +5,7 @@ using Syncer.Elasticsearch.Extensions;
 
 namespace Syncer.Elasticsearch.Queries.Common
 {
-    public class DeleteByIdQuery<T> : ElasticClientQueryObject<IDeleteResponse> where T : class
+    public class DeleteByIdQuery<T> : ElasticClientQueryObject<DeleteResponse> where T : class
     {
         private readonly string _id;
         private readonly bool _refreshOnDelete;
@@ -16,13 +16,13 @@ namespace Syncer.Elasticsearch.Queries.Common
             _refreshOnDelete = refreshOnDelete;
         }
 
-        protected override IDeleteResponse ExecuteCore(IElasticClient client, string index)
+        protected override DeleteResponse ExecuteCore(IElasticClient client, string index)
         {
             var id = DocumentPath<T>.Id(_id);
             return client.Delete(id ,descriptor => BuildQueryCore(descriptor).Index(index));
         }
 
-        protected override Task<IDeleteResponse> ExecuteCoreAsync(IElasticClient client, string index)
+        protected override Task<DeleteResponse> ExecuteCoreAsync(IElasticClient client, string index)
         {
             var id = DocumentPath<T>.Id(_id);
             return client.DeleteAsync(id, descriptor => BuildQueryCore(descriptor).Index(index));

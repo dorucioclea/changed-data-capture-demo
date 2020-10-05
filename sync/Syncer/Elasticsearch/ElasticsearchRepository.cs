@@ -22,7 +22,7 @@ namespace Syncer.Elasticsearch
         public async Task<T> FindByIdAsync<T>(DocumentPath<T> documentPath, string index = null) where T : class
         {
             var response = await GetByIdAsync(documentPath, GetIndexName(_client, index));
-            if (response.IsValid && response.Found)
+            if (response.IsValid && response.Source != default)
             {
                 return response.Source;
             }
@@ -45,25 +45,25 @@ namespace Syncer.Elasticsearch
             return await _client.QueryAsync(query, GetIndexName(_client, index));
         }
 
-        public async Task<IIndexResponse> SaveAsync<T>(T document, string index = null, bool? refreshOnSave = null) where T : class
+        public async Task<IndexResponse> SaveAsync<T>(T document, string index = null, bool? refreshOnSave = null) where T : class
         {
             if (document == null) throw new ArgumentNullException(nameof(document), "indexed document can not be null");
 
             return await QueryAsync(new IndexDocumentQuery<T>(document, refreshOnSave.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
 
-        public async Task<IBulkResponse> BulkAsync<T>(IEnumerable<T> documents, string index = null, bool? refreshOnSave = null) where T : class
+        public async Task<BulkResponse> BulkAsync<T>(IEnumerable<T> documents, string index = null, bool? refreshOnSave = null) where T : class
         {
             return await QueryAsync(new BulkIndexDocumentQuery<T>(documents, refreshOnSave.GetValueOrDefault(false)), GetIndexName(_client, index));
 
         }
 
-        public async Task<IDeleteResponse> DeleteAsync<T>(T document, string index = null, bool? refreshOnDelete = null) where T : class
+        public async Task<DeleteResponse> DeleteAsync<T>(T document, string index = null, bool? refreshOnDelete = null) where T : class
         {
             return await QueryAsync(new DeleteDocumentQuery<T>(document, refreshOnDelete.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
 
-        public async Task<IDeleteResponse> DeleteAsync<T>(string id, string index = null, bool? refreshOnDelete = null) where T : class
+        public async Task<DeleteResponse> DeleteAsync<T>(string id, string index = null, bool? refreshOnDelete = null) where T : class
         {
             return await QueryAsync(new DeleteByIdQuery<T>(id, refreshOnDelete.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
@@ -105,7 +105,7 @@ namespace Syncer.Elasticsearch
         public T FindById<T>(DocumentPath<T> documentPath, string index = null) where T : class
         {
             var response = GetById(documentPath, GetIndexName(_client, index));
-            if (response.IsValid && response.Found)
+            if (response.IsValid && response.Source != default)
             {
                 return response.Source;
             }
@@ -130,24 +130,24 @@ namespace Syncer.Elasticsearch
         }
 
         /// <exception cref="NullReferenceException">indexed document can not be null</exception>
-        public IIndexResponse Save<T>(T document, string index = null, bool? refreshOnSave = null) where T : class
+        public IndexResponse Save<T>(T document, string index = null, bool? refreshOnSave = null) where T : class
         {
             if (document == null) throw new ArgumentNullException(nameof(document), "indexed document can not be null");
 
             return Query(new IndexDocumentQuery<T>(document, refreshOnSave.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
 
-        public IBulkResponse Bulk<T>(IEnumerable<T> documents, string index = null, bool? refreshOnSave = null) where T : class
+        public BulkResponse Bulk<T>(IEnumerable<T> documents, string index = null, bool? refreshOnSave = null) where T : class
         {
             return Query(new BulkIndexDocumentQuery<T>(documents, refreshOnSave.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
 
-        public IDeleteResponse Delete<T>(T document, string index = null, bool? refreshOnDelete = null) where T : class
+        public DeleteResponse Delete<T>(T document, string index = null, bool? refreshOnDelete = null) where T : class
         {
             return Query(new DeleteDocumentQuery<T>(document, refreshOnDelete.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
 
-        public IDeleteResponse Delete<T>(string id, string index = null, bool? refreshOnDelete = null) where T : class
+        public DeleteResponse Delete<T>(string id, string index = null, bool? refreshOnDelete = null) where T : class
         {
             return Query(new DeleteByIdQuery<T>(id, refreshOnDelete.GetValueOrDefault(false)), GetIndexName(_client, index));
         }
