@@ -7,9 +7,10 @@ using Syncer.Elasticsearch.Documents;
 
 namespace Syncer.Services.Handlers
 {
-    public abstract class HandlerBase<T> where T: BaseDocument, new()
+    public abstract class HandlerBase
     {
-        protected List<T> GetItemsFrom(IReadOnlyList<ColumnData> rows, List<ColumnConfiguration> columns)
+        protected List<T> GetItemsFrom<T>(IReadOnlyList<ColumnData> rows, List<ColumnConfiguration> columns)
+            where T : BaseDocument, new()
         {
             var items = new List<T>();
             foreach (var row in rows)
