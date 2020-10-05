@@ -9,7 +9,10 @@ using Syncer.Configuration;
 using Syncer.Contracts;
 using Syncer.Elasticsearch;
 using Syncer.Elasticsearch.Abstractions;
+using Syncer.Elasticsearch.Documents;
+using Syncer.Factory;
 using Syncer.Services;
+using Syncer.Services.Handlers;
 using Syncer.Services.Visitors;
 
 namespace Syncer
@@ -28,6 +31,9 @@ namespace Syncer
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
+            serviceCollection.AddFactory<IDeleteHandler<TestDocument>, TestDocumentDeleteHandler>();
+            serviceCollection.AddFactory<ICreateHandler<TestDocument>, TestDocumentCreateHandler>();
+
             var applicationConfiguration = ConfigurationFactory.CreateConfiguration();
 
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(applicationConfiguration).CreateLogger();
