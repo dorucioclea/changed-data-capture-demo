@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using MySqlCdc.Events;
 using Syncer.Configuration;
+using Syncer.Database;
 using Syncer.Elasticsearch.Documents;
 
 namespace Syncer.Services.Handlers
@@ -16,7 +18,6 @@ namespace Syncer.Services.Handlers
             foreach (var row in rows)
             {
                 var newRow = new T();
-                var type = newRow.GetType();
 
                 for (var i = 0; i < row.Cells.Count; i++)
                 {
@@ -30,8 +31,9 @@ namespace Syncer.Services.Handlers
                         throw new InvalidOperationException($"Could not process create for type {nameof(T)}");
                     }
 
+                    var prop = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .FirstOrDefault(p => p.GetCustomAttributes(typeof(MapToTableFieldAttribute), false).FirstOrDefault() is MapToTableFieldAttribute mapToField && mapToField.Name == rowPropertyName.Name);
 
-                    var prop = type.GetProperty(rowPropertyName.Name);
                     prop?.SetValue(newRow, rowCell, null);
                 }
 
