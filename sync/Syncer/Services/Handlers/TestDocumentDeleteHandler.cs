@@ -10,11 +10,8 @@ namespace Syncer.Services.Handlers
 {
     public class TestDocumentDeleteHandler: HandlerBase<TestDocument, int>, IDeleteHandler
     {
-        private readonly IOptions<ElasticSearchConfiguration> _elasticSearchConfiguration;
-
-        public TestDocumentDeleteHandler(IOptions<ElasticSearchConfiguration> elasticSearchConfiguration)
+        public TestDocumentDeleteHandler(IOptions<ElasticSearchConfiguration> elasticSearchConfiguration) : base(elasticSearchConfiguration)
         {
-            _elasticSearchConfiguration = elasticSearchConfiguration;
         }
 
         public async ValueTask HandleDelete(DeleteRowsEvent deleteRows, PreProcessInformation preProcessInformation)
@@ -23,7 +20,7 @@ namespace Syncer.Services.Handlers
 
             var indexName = GetIndexName();
 
-            var repository = GetRepository(_elasticSearchConfiguration.Value);
+            var repository = GetElasticRepository();
 
             foreach (var item in itemsToDelete)
             {

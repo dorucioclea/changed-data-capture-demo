@@ -11,11 +11,9 @@ namespace Syncer.Services.Handlers
 {
     public class TestDocumentCreateHandler : HandlerBase<TestDocument, int>, ICreateHandler
     {
-        private readonly IOptions<ElasticSearchConfiguration> _elasticSearchConfiguration;
 
-        public TestDocumentCreateHandler(IOptions<ElasticSearchConfiguration> elasticSearchConfiguration)
+        public TestDocumentCreateHandler(IOptions<ElasticSearchConfiguration> elasticSearchConfiguration) : base(elasticSearchConfiguration)
         {
-            _elasticSearchConfiguration = elasticSearchConfiguration;
         }
 
         public async ValueTask HandleCreate(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
@@ -24,7 +22,7 @@ namespace Syncer.Services.Handlers
 
             var indexName = GetIndexName();
 
-            var repository = GetRepository(_elasticSearchConfiguration.Value);
+            var repository = GetElasticRepository();
 
             await repository.BulkAsync(newItems, indexName, true);
         }

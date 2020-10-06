@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Elasticsearch.Net;
+using Microsoft.Extensions.Options;
 using MySqlCdc.Events;
 using Nest;
 using Syncer.Configuration;
@@ -16,6 +17,18 @@ namespace Syncer.Services.Handlers
 {
     public abstract class HandlerBase<T, TK> : IHandler where T: BaseDocument<TK>, new() where TK: struct
     {
+        private readonly IOptions<ElasticSearchConfiguration> _elasticSearchConfigurationOptions;
+
+        protected HandlerBase(IOptions<ElasticSearchConfiguration> elasticSearchConfigurationOptions)
+        {
+            _elasticSearchConfigurationOptions = elasticSearchConfigurationOptions;
+        }
+
+        public string HandledTableName => GetHandledTableName();
+
+        protected virtual void CreateIndex(IElasticClient client, string indexName) { }
+
+
         protected List<T> GetItemsFrom(IReadOnlyList<ColumnData> rows, List<ColumnConfiguration> columns)
         {
             var items = new List<T>();
@@ -46,37 +59,10 @@ namespace Syncer.Services.Handlers
 
             return items;
         }
-
-
-        protected string GetHandledName()
+        
+        protected IElasticsearchRepository GetElasticRepository()
         {
-            var documentType = typeof(T);
-            var mapToTableAttributes = documentType.GetCustomAttributes(typeof(MapToTableAttribute)).ToList();
-
-            if (!mapToTableAttributes.Any()) return null;
-            var firstAttribute = mapToTableAttributes.FirstOrDefault();
-
-            if (!(firstAttribute is MapToTableAttribute mapToTableAttribute)) return null;
-            var name = mapToTableAttribute.Name;
-
-            return name;
-        }
-
-        protected static string GetIndexName()
-        {
-            var documentType = typeof(T);
-            var mapToTableAttributes = documentType.GetCustomAttributes(typeof(MapToIndexAttribute)).ToList();
-
-            if (!mapToTableAttributes.Any()) return null;
-            var firstAttribute = mapToTableAttributes.FirstOrDefault();
-
-            if (!(firstAttribute is MapToIndexAttribute mapToTableAttribute)) return null;
-            var name = mapToTableAttribute.Name;
-            return name;
-        }
-
-        protected IElasticsearchRepository GetRepository(ElasticSearchConfiguration elasticSearchConfiguration)
-        {
+            var elasticSearchConfiguration = _elasticSearchConfigurationOptions.Value;
             var targetIndexName = GetIndexName();
 
             var connectionSettings = new ConnectionSettings(new Uri(elasticSearchConfiguration.Host))
@@ -99,11 +85,31 @@ namespace Syncer.Services.Handlers
             return repository;
         }
 
-        protected virtual void CreateIndex(IElasticClient client, string indexName)
+        protected static string GetIndexName()
         {
-            
+            var documentType = typeof(T);
+            var mapToTableAttributes = documentType.GetCustomAttributes(typeof(MapToIndexAttribute)).ToList();
+
+            if (!mapToTableAttributes.Any()) return null;
+            var firstAttribute = mapToTableAttributes.FirstOrDefault();
+
+            if (!(firstAttribute is MapToIndexAttribute mapToTableAttribute)) return null;
+            var name = mapToTableAttribute.Name;
+            return name;
         }
 
-        public string HandledTableName => GetHandledName();
+        private static string GetHandledTableName()
+        {
+            var documentType = typeof(T);
+            var mapToTableAttributes = documentType.GetCustomAttributes(typeof(MapToTableAttribute)).ToList();
+
+            if (!mapToTableAttributes.Any()) return null;
+            var firstAttribute = mapToTableAttributes.FirstOrDefault();
+
+            if (!(firstAttribute is MapToTableAttribute mapToTableAttribute)) return null;
+            var name = mapToTableAttribute.Name;
+
+            return name;
+        }
     }
 }
