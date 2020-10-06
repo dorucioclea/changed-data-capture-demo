@@ -5,15 +5,13 @@ using Syncer.Contracts;
 
 namespace Syncer.Services.Handlers
 {
-    public class HandlerFactory : IHandlerFactory
+    public class CreateHandlerFactory : ICreateHandlerFactory
     {
         private readonly List<ICreateHandler> _createHandlers;
-        private readonly List<IDeleteHandler> _deleteHandlers;
 
-        public HandlerFactory(List<ICreateHandler> createHandlers, List<IDeleteHandler> deleteHandlers)
+        public CreateHandlerFactory(List<ICreateHandler> createHandlers)
         {
             _createHandlers = createHandlers;
-            _deleteHandlers = deleteHandlers;
         }
 
         public ICreateHandler GetCreateHandler(string tableName)
@@ -23,18 +21,6 @@ namespace Syncer.Services.Handlers
             if (handler == null)
             {
                 throw new NullReferenceException($"Could not get a create handler for {tableName}");
-            }
-
-            return handler;
-        }
-
-        public IDeleteHandler GetDeleteHandler(string tableName)
-        {
-            var handler = _deleteHandlers.SingleOrDefault(handlerItem => handlerItem.HandledTableName == tableName);
-
-            if (handler == null)
-            {
-                throw new NullReferenceException($"Could not get a delete handler for {tableName}");
             }
 
             return handler;
