@@ -4,15 +4,15 @@ using System.Linq;
 using System.Reflection;
 using MySqlCdc.Events;
 using Syncer.Configuration;
+using Syncer.Contracts;
 using Syncer.Database;
 using Syncer.Elasticsearch.Documents;
 
 namespace Syncer.Services.Handlers
 {
-    public abstract class HandlerBase
+    public abstract class HandlerBase<T> : IHandler where T: BaseDocument, new()
     {
-        protected List<T> GetItemsFrom<T>(IReadOnlyList<ColumnData> rows, List<ColumnConfiguration> columns)
-            where T : BaseDocument, new()
+        protected List<T> GetItemsFrom(IReadOnlyList<ColumnData> rows, List<ColumnConfiguration> columns)
         {
             var items = new List<T>();
             foreach (var row in rows)
@@ -42,6 +42,15 @@ namespace Syncer.Services.Handlers
 
             return items;
         }
-        
+
+
+        protected string GetHandledName()
+        {
+           return typeof(T).GetCustomAttributes(typeof(MapToTableAttribute), true).FirstOrDefault() is MapToTableAttribute mapToTableAttribute
+                ? mapToTableAttribute.Name
+                : null;
+        }
+
+        public string HandledTableName => GetHandledName();
     }
 }
