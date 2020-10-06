@@ -28,6 +28,8 @@ namespace Syncer
             serviceCollection.AddTransient<ICreateHandlerFactory, CreateHandlerFactory>();
             serviceCollection.AddTransient<IDeleteHandlerFactory, DeleteHandlerFactory>();
 
+            serviceCollection.AddTransient<IHandlerFence, HandlerFence>();
+
             var applicationConfiguration = ConfigurationFactory.CreateConfiguration();
 
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(applicationConfiguration).CreateLogger();
