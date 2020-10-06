@@ -1,5 +1,4 @@
 ﻿using Elasticsearch.Net;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -64,10 +63,8 @@ namespace Syncer
 
             serviceCollection.AddTransient<IElasticsearchRepository>(provider =>
             {
-                var configuration = provider.GetService<IConfiguration>();
-
                 var elasticSearchConfiguration =
-                    configuration.Get<IOptions<ElasticSearchConfiguration>>();
+                    provider.GetService<IOptions<ElasticSearchConfiguration>>();
 
                 var elasticClient = new ElasticClient(
                     elasticSearchConfiguration.Value.Host,
