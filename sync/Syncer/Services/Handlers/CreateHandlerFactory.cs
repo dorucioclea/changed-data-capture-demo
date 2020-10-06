@@ -7,9 +7,9 @@ namespace Syncer.Services.Handlers
 {
     public class CreateHandlerFactory : ICreateHandlerFactory
     {
-        private readonly List<ICreateHandler> _createHandlers;
+        private readonly IEnumerable<ICreateHandler> _createHandlers;
 
-        public CreateHandlerFactory(List<ICreateHandler> createHandlers)
+        public CreateHandlerFactory(IEnumerable<ICreateHandler> createHandlers)
         {
             _createHandlers = createHandlers;
         }

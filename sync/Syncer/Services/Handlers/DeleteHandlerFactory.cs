@@ -7,8 +7,8 @@ namespace Syncer.Services.Handlers
 {
     public class DeleteHandlerFactory : IDeleteHandlerFactory
     {
-        private readonly List<IDeleteHandler> _deleteHandlers;
-        public DeleteHandlerFactory(List<IDeleteHandler> deleteHandlers)
+        private readonly IEnumerable<IDeleteHandler> _deleteHandlers;
+        public DeleteHandlerFactory(IEnumerable<IDeleteHandler> deleteHandlers)
         {
             _deleteHandlers = deleteHandlers;
         }
