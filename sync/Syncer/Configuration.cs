@@ -1,15 +1,8 @@
-﻿using System;
-using Elasticsearch.Net;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Nest;
 using Serilog;
 using Syncer.Configuration;
 using Syncer.Contracts;
-using Syncer.Elasticsearch;
-using Syncer.Elasticsearch.Abstractions;
-using Syncer.Elasticsearch.Documents;
 using Syncer.Services;
 using Syncer.Services.Handlers;
 using Syncer.Services.Visitors;
@@ -62,24 +55,6 @@ namespace Syncer
             serviceCollection.AddTransient<IBinLogEventVisitor, BinLogPositionVisitor>();
 
             serviceCollection.AddTransient<ICdcClientProvider, CdcClientProvider>();
-
-            serviceCollection.AddTransient<IElasticsearchRepository>(provider =>
-            {
-                var elasticSearchConfiguration =
-                    provider.GetService<IOptions<ElasticSearchConfiguration>>();
-
-                var connectionSettings = new ConnectionSettings(new Uri(elasticSearchConfiguration.Value.Host))
-                    .BasicAuthentication(elasticSearchConfiguration.Value.UserName, elasticSearchConfiguration.Value.Password)
-                    .ServerCertificateValidationCallback(CertificateValidations.AllowAll)
-                    .DefaultMappingFor<TestDocument>(i => i.IndexName("test"))
-                    .PrettyJson();
-
-                var elasticClient = new ElasticClient(connectionSettings);
-
-                var elasticSearchRepositoryAsync = new ElasticsearchRepository(elasticClient);
-
-                return elasticSearchRepositoryAsync;
-            });
         }
     }
 }

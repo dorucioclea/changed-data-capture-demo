@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Elasticsearch.Net;
 using MySqlCdc.Events;
+using Nest;
 using Syncer.Configuration;
 using Syncer.Contracts;
 using Syncer.Database;
+using Syncer.Elasticsearch;
+using Syncer.Elasticsearch.Abstractions;
 using Syncer.Elasticsearch.Documents;
 
 namespace Syncer.Services.Handlers
@@ -46,9 +50,58 @@ namespace Syncer.Services.Handlers
 
         protected string GetHandledName()
         {
-           return typeof(T).GetCustomAttributes(typeof(MapToTableAttribute), true).FirstOrDefault() is MapToTableAttribute mapToTableAttribute
-                ? mapToTableAttribute.Name
-                : null;
+            var documentType = typeof(T);
+            var mapToTableAttributes = documentType.GetCustomAttributes(typeof(MapToTableAttribute)).ToList();
+
+            if (!mapToTableAttributes.Any()) return null;
+            var firstAttribute = mapToTableAttributes.FirstOrDefault();
+
+            if (!(firstAttribute is MapToTableAttribute mapToTableAttribute)) return null;
+            var name = mapToTableAttribute.Name;
+
+            return name;
+        }
+
+        protected static string GetIndexName()
+        {
+            var documentType = typeof(T);
+            var mapToTableAttributes = documentType.GetCustomAttributes(typeof(MapToIndexAttribute)).ToList();
+
+            if (!mapToTableAttributes.Any()) return null;
+            var firstAttribute = mapToTableAttributes.FirstOrDefault();
+
+            if (!(firstAttribute is MapToIndexAttribute mapToTableAttribute)) return null;
+            var name = mapToTableAttribute.Name;
+            return name;
+        }
+
+        protected IElasticsearchRepository GetRepository(ElasticSearchConfiguration elasticSearchConfiguration)
+        {
+            var targetIndexName = GetIndexName();
+
+            var connectionSettings = new ConnectionSettings(new Uri(elasticSearchConfiguration.Host))
+                .BasicAuthentication(elasticSearchConfiguration.UserName, elasticSearchConfiguration.Password)
+                .ServerCertificateValidationCallback(CertificateValidations.AllowAll)
+                .DefaultMappingFor<TestDocument>(i => i.IndexName(targetIndexName))
+                .PrettyJson();
+
+            var elasticClient = new ElasticClient(connectionSettings);
+
+            var indexExistsResponse = elasticClient.Indices.Exists(targetIndexName);
+            if (indexExistsResponse.IsValid && !indexExistsResponse.Exists)
+            {
+                // index does not exist, create it
+                CreateIndex(elasticClient, targetIndexName);
+            }
+
+            var repository = new ElasticsearchRepository(elasticClient);
+
+            return repository;
+        }
+
+        protected virtual void CreateIndex(IElasticClient client, string indexName)
+        {
+            
         }
 
         public string HandledTableName => GetHandledName();

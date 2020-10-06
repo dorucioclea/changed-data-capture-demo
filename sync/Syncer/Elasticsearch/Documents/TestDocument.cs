@@ -2,7 +2,7 @@
 
 namespace Syncer.Elasticsearch.Documents
 {
-    [MapToTable("test")]
+    [MapToTable("test"), MapToIndex("test_index")]
     public class TestDocument : BaseDocument<int>
     {
         [MapToTableField("name")]
