@@ -11,7 +11,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=000000
     networks:
-      - cdc
+      - es_cdc
 
   syncer:
     image: ${DOCKER_REGISTRY-}syncer
@@ -21,10 +21,10 @@ services:
     volumes:
       - ./logs:/logs
     networks:
-      - cdc
+      - es_cdc
     depends_on:
       - mariadb-cdc
 
 networks:
-  cdc:
+  es_cdc:
     driver: bridge

@@ -34,7 +34,7 @@ services:
     ports:
       - ${ELASTIC_PORT}:9200
     networks:
-      - cdc
+      - es_cdc
 
     healthcheck:
       test: curl --cacert $CERTS_DIR/ca/ca.crt -s https://localhost:$ELASTIC_PORT >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
@@ -74,7 +74,7 @@ services:
       - data02:/usr/share/elasticsearch/data
       - certs:$CERTS_DIR
     networks:
-      - cdc
+      - es_cdc
 
   es03:
     image: elasticsearch
@@ -108,7 +108,7 @@ services:
       - data03:/usr/share/elasticsearch/data
       - certs:$CERTS_DIR
     networks:
-      - cdc
+      - es_cdc
 
   kib01:
     image: kibana
@@ -132,7 +132,7 @@ services:
     volumes:
       - certs:$CERTS_DIR
     networks:
-      - cdc
+      - es_cdc
 
 volumes:
   data01:
@@ -145,5 +145,5 @@ volumes:
     driver: local
 
 networks:
-  cdc:
-    external: true
+  es_cdc:
+    driver: bridge

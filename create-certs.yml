@@ -28,5 +28,5 @@ volumes:
     driver: local
 
 networks:
-  cdc:
+  es_cdc:
     driver: bridge
