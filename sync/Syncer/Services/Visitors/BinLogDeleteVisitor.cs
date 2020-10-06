@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using ArgumentValidator;
 using Microsoft.Extensions.Logging;
@@ -10,11 +11,18 @@ using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogDeleteVisitor : BaseVisitor<BinLogDeleteVisitor>, IBinLogEventVisitor
     {
-        public BinLogDeleteVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogDeleteVisitor> logger) 
+        private readonly IDeleteHandlerFactory _deleteHandlerFactory;
+
+        public BinLogDeleteVisitor(
+            IOptions<DatabaseConfiguration> databaseConfiguration, 
+            IDeleteHandlerFactory deleteHandlerFactory,
+            ILogger<BinLogDeleteVisitor> logger) 
             : base(databaseConfiguration, logger)
         {
+            _deleteHandlerFactory = deleteHandlerFactory;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -22,25 +30,24 @@ namespace Syncer.Services.Visitors
             return binLogEvent is DeleteRowsEvent;
         }
 
-        public ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
+        public async ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var deleteRows = binlogEvent.Event as DeleteRowsEvent;
             Throw.IfNull(deleteRows, nameof(deleteRows));
 
-            HandleDeleteRowsEvent(deleteRows);
+            var preProcessInformation = PreProcess(deleteRows.TableId, executionContext);
 
-            return new ValueTask(Task.CompletedTask);
+            await HandleDeleteRowsEvent(deleteRows, preProcessInformation);
         }
 
-        private void HandleDeleteRowsEvent(DeleteRowsEvent deleteRows)
+        private async ValueTask HandleDeleteRowsEvent(DeleteRowsEvent deleteRows, PreProcessInformation preProcessInformation)
         {
             Console.WriteLine($"{deleteRows.Rows.Count} rows were deleted");
             var eventString = this.GetBinLogEventJson(deleteRows);
-           
-            foreach (var _ in deleteRows.Rows)
-            {
-                // Do something
-            }
+
+            var handler = _deleteHandlerFactory.GetDeleteHandler(preProcessInformation.TableConfiguration.Name);
+
+            await handler.HandleDelete(deleteRows, preProcessInformation);
 
             using (Logger.BeginScope("DeleteRowEvent"))
             {
