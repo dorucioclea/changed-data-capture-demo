@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using MySqlCdc.Events;
 using Syncer.Configuration;
 using Syncer.Contracts;
-using Syncer.Elasticsearch.Abstractions;
 using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
@@ -14,11 +13,15 @@ namespace Syncer.Services.Visitors
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogCreateVisitor : BaseVisitor<BinLogCreateVisitor>, IBinLogEventVisitor
     {
+        private readonly ICreateHandlerFactory _createHandlerFactory;
+
         public BinLogCreateVisitor(
-            IOptions<DatabaseConfiguration> databaseConfiguration, 
+            IOptions<DatabaseConfiguration> databaseConfiguration,
+            ICreateHandlerFactory createHandlerFactory,
             ILogger<BinLogCreateVisitor> logger) 
             : base(databaseConfiguration, logger)
         {
+            _createHandlerFactory = createHandlerFactory;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -26,7 +29,7 @@ namespace Syncer.Services.Visitors
             return binLogEvent is WriteRowsEvent;
         }
 
-        public ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
+        public async ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var writeRows = binlogEvent.Event as WriteRowsEvent;
 
@@ -34,19 +37,16 @@ namespace Syncer.Services.Visitors
 
             var preProcessInformation = PreProcess(writeRows.TableId, executionContext);
 
-            HandleWriteRowsEvent(writeRows, preProcessInformation);
-
-            return new ValueTask(Task.CompletedTask);
+            await HandleWriteRowsEvent(writeRows, preProcessInformation);
         }
             
-        private void HandleWriteRowsEvent(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
+        private async ValueTask HandleWriteRowsEvent(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
         {
             var eventString = this.GetBinLogEventJson(writeRows);
 
-            foreach (var _ in writeRows.Rows)
-            {
-                // Do something
-            }
+            var handler = _createHandlerFactory.GetCreateHandler(preProcessInformation.TableConfiguration.Name);
+
+            await handler.HandleCreate(writeRows, preProcessInformation);
 
             using (Logger.BeginScope("CreateRowEvent"))
             {
