@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using ArgumentValidator;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,11 +10,15 @@ using Syncer.Entities;
 
 namespace Syncer.Services.Visitors
 {
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogUpdateVisitor : BaseVisitor<BinLogUpdateVisitor>, IBinLogEventVisitor
     {
-        public BinLogUpdateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogUpdateVisitor> logger)
+        private readonly IHandlerFence _handlerFence;
+
+        public BinLogUpdateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogUpdateVisitor> logger, IHandlerFence handlerFence)
             : base(databaseConfiguration, logger)
         {
+            _handlerFence = handlerFence;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -26,7 +31,13 @@ namespace Syncer.Services.Visitors
             var updatedRows = binlogEvent.Event as UpdateRowsEvent;
             Throw.IfNull(updatedRows, nameof(updatedRows));
 
-            HandleUpdateRowsEvent(updatedRows);
+            var preProcessInformation = PreProcess(updatedRows.TableId, executionContext);
+
+            if (_handlerFence.CanHandleTable(preProcessInformation.TableConfiguration.Name))
+            {
+                HandleUpdateRowsEvent(updatedRows);
+            }
+
 
             return new ValueTask(Task.CompletedTask);
         }
@@ -41,6 +52,7 @@ namespace Syncer.Services.Visitors
                 var __ = row.AfterUpdate;
                 // Do something
             }
+
 
             using (Logger.BeginScope("UpdateRowEvent"))
             {
