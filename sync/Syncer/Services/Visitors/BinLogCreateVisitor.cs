@@ -13,14 +13,17 @@ namespace Syncer.Services.Visitors
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogCreateVisitor : BaseVisitor<BinLogCreateVisitor>, IBinLogEventVisitor
     {
+        private readonly IHandlerFence _handlerFence;
         private readonly ICreateHandlerFactory _createHandlerFactory;
 
         public BinLogCreateVisitor(
             IOptions<DatabaseConfiguration> databaseConfiguration,
+            IHandlerFence handlerFence,
             ICreateHandlerFactory createHandlerFactory,
             ILogger<BinLogCreateVisitor> logger) 
             : base(databaseConfiguration, logger)
         {
+            _handlerFence = handlerFence;
             _createHandlerFactory = createHandlerFactory;
         }
 
@@ -37,7 +40,10 @@ namespace Syncer.Services.Visitors
 
             var preProcessInformation = PreProcess(writeRows.TableId, executionContext);
 
-            await HandleWriteRowsEvent(writeRows, preProcessInformation);
+            if (_handlerFence.CanHandleTable(preProcessInformation.TableConfiguration.Name))
+            {
+                await HandleWriteRowsEvent(writeRows, preProcessInformation);
+            }
         }
             
         private async ValueTask HandleWriteRowsEvent(WriteRowsEvent writeRows, PreProcessInformation preProcessInformation)
