@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace Syncer.Contracts
 {
-    public interface IHandlerFactory
+    public interface ICreateHandlerFactory
     {
         ICreateHandler GetCreateHandler(string tableName);
+    }
+
+    public interface IDeleteHandlerFactory
+    {
         IDeleteHandler GetDeleteHandler(string tableName);
     }
 }
