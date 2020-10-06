@@ -14,14 +14,17 @@ namespace Syncer.Services.Visitors
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class BinLogDeleteVisitor : BaseVisitor<BinLogDeleteVisitor>, IBinLogEventVisitor
     {
+        private readonly IHandlerFence _handlerFence;
         private readonly IDeleteHandlerFactory _deleteHandlerFactory;
 
         public BinLogDeleteVisitor(
             IOptions<DatabaseConfiguration> databaseConfiguration, 
+            IHandlerFence handlerFence,
             IDeleteHandlerFactory deleteHandlerFactory,
             ILogger<BinLogDeleteVisitor> logger) 
             : base(databaseConfiguration, logger)
         {
+            _handlerFence = handlerFence;
             _deleteHandlerFactory = deleteHandlerFactory;
         }
 
@@ -37,7 +40,10 @@ namespace Syncer.Services.Visitors
 
             var preProcessInformation = PreProcess(deleteRows.TableId, executionContext);
 
-            await HandleDeleteRowsEvent(deleteRows, preProcessInformation);
+            if (_handlerFence.CanHandleTable(preProcessInformation.TableConfiguration.Name))
+            {
+                await HandleDeleteRowsEvent(deleteRows, preProcessInformation);
+            }
         }
 
         private async ValueTask HandleDeleteRowsEvent(DeleteRowsEvent deleteRows, PreProcessInformation preProcessInformation)
