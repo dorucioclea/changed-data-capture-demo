@@ -21,7 +21,7 @@ services:
       - certs:/certs
       - .:/usr/share/elasticsearch/config/certificates
     networks:
-      - cdc
+      - es_cdc
 
 volumes:
   certs:
