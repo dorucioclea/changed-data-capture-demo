@@ -8,7 +8,7 @@ using Syncer.Services.Visitors;
 
 namespace Syncer.Services.Handlers
 {
-    public class TestDocumentDeleteHandler: HandlerBase<TestDocument>, IDeleteHandler
+    public class TestDocumentDeleteHandler: HandlerBase<TestDocument, int>, IDeleteHandler
     {
         private readonly IElasticsearchRepository _elasticsearchRepository;
 
@@ -24,7 +24,7 @@ namespace Syncer.Services.Handlers
 
             foreach (var item in itemsToDelete)
             {
-                await _elasticsearchRepository.DeleteAsync<TestDocument>(item.Id, indexName, true);
+                await _elasticsearchRepository.DeleteAsync<TestDocument>(item.Id.ToString(), indexName, true);
             }
         }
     }

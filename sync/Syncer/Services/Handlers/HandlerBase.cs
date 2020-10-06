@@ -10,7 +10,7 @@ using Syncer.Elasticsearch.Documents;
 
 namespace Syncer.Services.Handlers
 {
-    public abstract class HandlerBase<T> : IHandler where T: BaseDocument, new()
+    public abstract class HandlerBase<T, TK> : IHandler where T: BaseDocument<TK>, new() where TK: struct
     {
         protected List<T> GetItemsFrom(IReadOnlyList<ColumnData> rows, List<ColumnConfiguration> columns)
         {

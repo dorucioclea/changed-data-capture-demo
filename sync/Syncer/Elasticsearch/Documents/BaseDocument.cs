@@ -3,10 +3,10 @@
 namespace Syncer.Elasticsearch.Documents
 {
     [ElasticsearchType(IdProperty = "Id", RelationName = "_doc")]
-    public abstract class BaseDocument
+    public abstract class BaseDocument<T> where T : struct
     {
         [Keyword]
-        public abstract string Id { get; set; }
+        public abstract T Id { get; set; }
 
         [Keyword(Name = "_docType")]
         public string DocType { get; set; }
