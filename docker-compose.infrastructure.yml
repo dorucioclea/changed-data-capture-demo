@@ -146,4 +146,4 @@ volumes:
 
 networks:
   cdc:
-    driver: bridge
+    external: true

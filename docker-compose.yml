@@ -26,5 +26,5 @@ services:
       - mariadb-cdc
 
 networks:
-cdc:
-    external: true
+  cdc:
+    driver: bridge
