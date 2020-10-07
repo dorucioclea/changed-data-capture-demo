@@ -25,9 +25,11 @@ namespace Syncer
         {
             serviceCollection.AddTransient<IDeleteHandler, TestDocumentDeleteHandler>();
             serviceCollection.AddTransient<ICreateHandler, TestDocumentCreateHandler>();
+            serviceCollection.AddTransient<IUpdateHandler, TestDocumentUpdateHandler>();
+
             serviceCollection.AddTransient<ICreateHandlerFactory, CreateHandlerFactory>();
             serviceCollection.AddTransient<IDeleteHandlerFactory, DeleteHandlerFactory>();
-
+            serviceCollection.AddTransient<IUpdateHandlerFactory, UpdateHandlerFactory>();
             serviceCollection.AddTransient<IHandlerFence, HandlerFence>();
 
             var applicationConfiguration = ConfigurationFactory.CreateConfiguration();
