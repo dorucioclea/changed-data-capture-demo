@@ -40,6 +40,9 @@ namespace Syncer.Elasticsearch.Abstractions
         [Obsolete("Use implementation with DocumentPath")]
         Task<IGetResponse<T>> GetByIdAsync<T>(string id, string index = null) where T : class;
 
+
+        Task<IUpdateResponse<T>> UpdateByIdAsync<T>(string id, T document, string index = null, bool? refreshOnUpdate = null) where T : class;
+
         /// <summary>
         /// Get individual item for <paramref name="documentPath"/>
         /// </summary>

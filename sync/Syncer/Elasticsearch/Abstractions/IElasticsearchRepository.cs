@@ -36,6 +36,8 @@ namespace Syncer.Elasticsearch.Abstractions
         /// <returns></returns>
         IGetResponse<T> GetById<T>(string id, string index = null) where T : class;
 
+        IUpdateResponse<T> UpdateById<T>(string id, T document, string index = null, bool? refreshOnUpdate = null) where T : class;
+
         /// <summary>
         /// Get individual item for <paramref name="documentPath"/>
         /// </summary>
