@@ -79,6 +79,19 @@ namespace Syncer.Elasticsearch
             var response = await QueryAsync(new DocumentExistsByIdQuery<T>(id), GetIndexName(_client, index));
             return response.IsValid && response.Exists;
         }
+
+        public async Task<IUpdateResponse<T>> UpdateByIdAsync<T>(string id, T document, string index = null, bool? refreshOnUpdate = null) where T : class
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document), "indexed document can not be null");
+
+            var refreshOnUpdateValue = refreshOnUpdate.GetValueOrDefault(false);
+
+            var updateQuery = new UpdateByIdQuery<T>(id, document, refreshOnUpdateValue);
+
+            var response = await QueryAsync(updateQuery, GetIndexName(_client, index));
+
+            return response;
+        }
     }
 
     [DebuggerStepThrough]
@@ -116,6 +129,19 @@ namespace Syncer.Elasticsearch
         {
             var documentPath = DocumentPath<T>.Id(id);
             return GetById(documentPath, index);
+        }
+
+        public IUpdateResponse<T> UpdateById<T>(string id, T document, string index = null, bool? refreshOnUpdate = null) where T : class
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document), "indexed document can not be null");
+
+            var refreshOnUpdateValue = refreshOnUpdate.GetValueOrDefault(false);
+
+            var updateQuery = new UpdateByIdQuery<T>(id, document, refreshOnUpdateValue);
+
+            var response = Query(updateQuery, GetIndexName(_client, index));
+
+            return response;
         }
 
         public IGetResponse<T> GetById<T>(DocumentPath<T> documentPath, string index = null) where T : class
@@ -163,5 +189,6 @@ namespace Syncer.Elasticsearch
             var response = Query(new DocumentExistsQuery<T>(document), GetIndexName(_client, index));
             return response.IsValid && response.Exists;
         }
+
     }
 }
