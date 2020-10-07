@@ -14,11 +14,13 @@ namespace Syncer.Services.Visitors
     public class BinLogUpdateVisitor : BaseVisitor<BinLogUpdateVisitor>, IBinLogEventVisitor
     {
         private readonly IHandlerFence _handlerFence;
+        private readonly IUpdateHandlerFactory _updateHandlerFactory;
 
-        public BinLogUpdateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogUpdateVisitor> logger, IHandlerFence handlerFence)
+        public BinLogUpdateVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<BinLogUpdateVisitor> logger, IHandlerFence handlerFence, IUpdateHandlerFactory updateHandlerFactory)
             : base(databaseConfiguration, logger)
         {
             _handlerFence = handlerFence;
+            _updateHandlerFactory = updateHandlerFactory;
         }
 
         public bool CanHandle(IBinlogEvent binLogEvent)
@@ -26,7 +28,7 @@ namespace Syncer.Services.Visitors
             return binLogEvent is UpdateRowsEvent;
         }
 
-        public ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
+        public async ValueTask Handle(EventInfo binlogEvent, ExecutionContext executionContext)
         {
             var updatedRows = binlogEvent.Event as UpdateRowsEvent;
             Throw.IfNull(updatedRows, nameof(updatedRows));
@@ -35,24 +37,17 @@ namespace Syncer.Services.Visitors
 
             if (_handlerFence.CanHandleTable(preProcessInformation.TableConfiguration.Name))
             {
-                HandleUpdateRowsEvent(updatedRows);
+                await HandleUpdateRowsEvent(updatedRows, preProcessInformation);
             }
-
-
-            return new ValueTask(Task.CompletedTask);
         }
 
-        private void HandleUpdateRowsEvent(UpdateRowsEvent updatedRows)
+        private async ValueTask HandleUpdateRowsEvent(UpdateRowsEvent updatedRows, PreProcessInformation preProcessInformation)
         {
             var eventString = this.GetBinLogEventJson(updatedRows);
 
-            foreach (var row in updatedRows.Rows)
-            {
-                var _ = row.BeforeUpdate;
-                var __ = row.AfterUpdate;
-                // Do something
-            }
+            var handler = _updateHandlerFactory.GetUpdateHandler(preProcessInformation.TableConfiguration.Name);
 
+            await handler.HandleUpdate(updatedRows, preProcessInformation);
 
             using (Logger.BeginScope("UpdateRowEvent"))
             {
