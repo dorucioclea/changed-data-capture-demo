@@ -13,7 +13,7 @@ namespace Syncer.Elasticsearch.Extensions
 
         public static async Task<TResponse> QueryAsync<TResponse>(this IElasticClient client, IElasticClientQueryObject<TResponse> query, string index = null) where TResponse : class
         {
-            return await query.ExecuteAsync(client, index).ConfigureAwait(false);
+            return await query.ExecuteAsync(client, index);
         }
     }
 }

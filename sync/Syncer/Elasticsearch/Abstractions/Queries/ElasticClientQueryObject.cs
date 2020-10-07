@@ -34,7 +34,7 @@ namespace Syncer.Elasticsearch.Abstractions.Queries
         {
             try
             {
-                return await ExecuteCoreAsync(client, index ?? GetDefaultIndex(client)).ConfigureAwait(false);
+                return await ExecuteCoreAsync(client, index ?? GetDefaultIndex(client));
             }
             catch (ElasticClientQueryObjectException)
             {
