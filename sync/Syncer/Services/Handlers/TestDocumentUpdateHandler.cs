@@ -19,21 +19,17 @@ namespace Syncer.Services.Handlers
 
         public async ValueTask HandleUpdate(UpdateRowsEvent updateRows, PreProcessInformation preProcessInformation)
         {
-            var beforeUpdateColumnData = updateRows.Rows.Select(row => row.BeforeUpdate).ToList();
             var afterUpdateColumnData = updateRows.Rows.Select(row => row.AfterUpdate).ToList();
-
-            var itemsBeforeUpdate = GetItemsFrom(beforeUpdateColumnData, 
-                preProcessInformation.TableConfiguration.Columns);
-            
             var itemsAfterUpdate =
                 GetItemsFrom(afterUpdateColumnData, preProcessInformation.TableConfiguration.Columns);
 
             var indexName = GetIndexName();
-
             var repository = GetElasticRepository();
 
-            // update items
-
+            foreach (var item in itemsAfterUpdate)
+            {
+                var response = await repository.UpdateByIdAsync(item.Id.ToString(), item, indexName, true);
+            }
         }
     }
 }
