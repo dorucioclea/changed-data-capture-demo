@@ -74,7 +74,7 @@ namespace Syncer.Services.Handlers
             var elasticClient = new ElasticClient(connectionSettings);
 
             var indexExistsResponse = elasticClient.Indices.Exists(targetIndexName);
-            if (indexExistsResponse.IsValid && !indexExistsResponse.Exists)
+            if (!indexExistsResponse.Exists)
             {
                 // index does not exist, create it
                 CreateIndex(elasticClient, targetIndexName);
