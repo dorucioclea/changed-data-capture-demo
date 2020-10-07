@@ -7,3 +7,7 @@ We are going to use the `docker-compose.infrastructure.yml` file. Inside you'll 
 
 With those few words, this builds and turns on your elastic stack container. 
 With your Elastic Stack running, we are now ready to utilize it. However, at the moment, Kibana won't connect properly. This is related mostly to the authentication. We'll discuss and learn how to setup the connection with your own personal authentication.
+
+If this doesn't start, make sure to see if it's because of vm.max_map_count. If it is so, run:
+
+    sysctl -w vm.max_map_count=262144
