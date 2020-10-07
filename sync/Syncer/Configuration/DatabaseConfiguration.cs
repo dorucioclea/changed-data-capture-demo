@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Syncer.Configuration
+﻿namespace Syncer.Configuration
 {
     public class DatabaseConfiguration
     {
@@ -13,7 +11,5 @@ namespace Syncer.Configuration
         public string Database { get; set; }
 
         public Credentials Credentials { get; set; }
-
-        public List<string> HandleTables { get; set; }
     }
 }

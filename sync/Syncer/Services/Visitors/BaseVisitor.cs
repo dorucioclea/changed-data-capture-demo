@@ -18,29 +18,15 @@ namespace Syncer.Services.Visitors
 
     public abstract class BaseVisitor<T> where T: IBinLogEventVisitor
     {
-        protected List<string> HandledTables { get; }
-
         protected ILogger<T> Logger { get; }
 
         protected BaseVisitor(IOptions<DatabaseConfiguration> databaseConfiguration, ILogger<T> logger)
         {
-            HandledTables = databaseConfiguration.Value.HandleTables;
             Logger = logger;
-
-            if (!HandledTables.Any())
-            {
-                Logger.LogDebug("Handled tables configuration is empty so handling all tables");
-            }
         }
 
         protected PreProcessInformation PreProcess(long tableId, ExecutionContext executionContext)
         {
-            if (!HandledTables.Any())
-            {
-                Logger.LogDebug("Handled tables configuration is empty so handling all tables");
-                return PreProcessInformation.CannotContinue;
-            }
-
             var tableConfiguration =
                 executionContext.OrdinalConfiguration.Tables.SingleOrDefault(table => table.Id == tableId);
 
