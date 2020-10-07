@@ -18,14 +18,10 @@ services:
       '
     working_dir: /usr/share/elasticsearch
     volumes:
-      - certs:/certs
+      - ./provisioning/certificates:/certs
       - .:/usr/share/elasticsearch/config/certificates
     networks:
       - es_cdc
-
-volumes:
-  certs:
-    driver: local
 
 networks:
   es_cdc:
