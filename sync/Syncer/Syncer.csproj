@@ -23,7 +23,7 @@
     <PackageReference Include="MySqlCdc" Version="1.0.0" />
     <PackageReference Include="NEST" Version="7.9.0" />
     <PackageReference Include="NEST.7xUpgradeAssistant" Version="7.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Polly" Version="7.2.1" />
     <PackageReference Include="Polly.Caching.Memory" Version="3.0.2" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
